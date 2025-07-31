@@ -1,0 +1,105 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Build outputs
+/dist/
+/build/
+*.egg-info/
+.next/
+out/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+.nyc_output/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# AWS
+.aws/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Testing
+.pytest_cache/
+htmlcov/
+
+# Docker
+Dockerfile.tmp
+docker-compose.override.yml
+
+# Security
+*.pem
+*.key
+secrets/
+
+# Large binaries (GitHub file size limits)
+dist-electron/
+*.exe
+*.dmg
+*.app
+*.deb
+*.rpm
+*.tar.gz
+*.zip
+
+# ML Models (too large for git)
+models/
+*.model
+*.h5
+*.pkl
+
+# Cache
+.cache/
+.parcel-cache/

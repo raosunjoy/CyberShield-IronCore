@@ -1,0 +1,88 @@
+{
+  "compilerOptions": {
+    // Enterprise TypeScript Configuration - STRICT MODE
+    "target": "ES2022",
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./frontend/src/*"],
+      "@/components/*": ["./frontend/src/components/*"],
+      "@/pages/*": ["./frontend/src/pages/*"],
+      "@/utils/*": ["./frontend/src/utils/*"],
+      "@/hooks/*": ["./frontend/src/hooks/*"],
+      "@/types/*": ["./frontend/src/types/*"],
+      "@/api/*": ["./frontend/src/api/*"],
+      "@/styles/*": ["./frontend/src/styles/*"]
+    },
+    
+    // Strict Type Checking - NON-NEGOTIABLE
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "alwaysStrict": true,
+    "useUnknownInCatchVariables": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    
+    // Advanced Type Checking
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noPropertyAccessFromIndexSignature": true,
+    
+    // Emit Configuration
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": ".",
+    
+    // Module Resolution
+    "typeRoots": ["./node_modules/@types", "./types"],
+    "types": ["node", "jest", "@testing-library/jest-dom"]
+  },
+  "include": [
+    "frontend/src/**/*",
+    "backend/**/*.ts",
+    "types/**/*",
+    "tests/**/*",
+    "scripts/**/*",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    ".next",
+    "coverage",
+    "backend/**/*.py",
+    "infrastructure"
+  ]
+}

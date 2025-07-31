@@ -1,0 +1,75 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🛡️  CyberShield-IronCore: Enforcing Enterprise Quality Gates 🛡️"
+echo "=========================================================="
+
+# NON-NEGOTIABLE Quality Gates - MUST PASS BEFORE COMMIT
+
+echo "🔍 Step 1: ESLint Check (Zero errors/warnings allowed)"
+npm run lint
+if [ $? -ne 0 ]; then
+  echo "❌ ESLint failed! Fix all errors and warnings before committing."
+  exit 1
+fi
+echo "✅ ESLint passed!"
+
+echo ""
+echo "🔧 Step 2: TypeScript Type Check (Zero errors allowed)"
+npm run type-check
+if [ $? -ne 0 ]; then
+  echo "❌ TypeScript type check failed! Fix all type errors before committing."
+  exit 1
+fi
+echo "✅ TypeScript type check passed!"
+
+echo ""
+echo "🧪 Step 3: Test Suite (100% pass rate required)"
+npm run test
+if [ $? -ne 0 ]; then
+  echo "❌ Tests failed! All tests must pass before committing."
+  exit 1
+fi
+echo "✅ All tests passed!"
+
+echo ""
+echo "📊 Step 4: Test Coverage (100% coverage required)"
+npm run test:coverage
+if [ $? -ne 0 ]; then
+  echo "❌ Test coverage below 100%! Add tests to achieve full coverage."
+  exit 1
+fi
+echo "✅ 100% test coverage achieved!"
+
+echo ""
+echo "🏗️  Step 5: Production Build (Must succeed)"
+npm run build
+if [ $? -ne 0 ]; then
+  echo "❌ Production build failed! Fix all build errors before committing."
+  exit 1
+fi
+echo "✅ Production build successful!"
+
+echo ""
+echo "🔒 Step 6: Security Audit (No high/critical vulnerabilities)"
+npm run security:audit
+if [ $? -ne 0 ]; then
+  echo "❌ Security vulnerabilities detected! Run 'npm audit fix' to resolve."
+  exit 1
+fi
+echo "✅ Security audit passed!"
+
+echo ""
+echo "💎 Step 7: Code Formatting (Prettier)"
+npm run format:check
+if [ $? -ne 0 ]; then
+  echo "❌ Code formatting issues detected! Run 'npm run format' to fix."
+  exit 1
+fi
+echo "✅ Code formatting verified!"
+
+echo ""
+echo "🎉 ALL QUALITY GATES PASSED! 🎉"
+echo "Enterprise-grade code ready for commit."
+echo "Iron Man would be proud! 🤖⚡"
+echo "========================================"

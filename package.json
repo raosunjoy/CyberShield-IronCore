@@ -1,0 +1,100 @@
+{
+  "name": "cybershield-ironcore",
+  "version": "1.0.0",
+  "description": "Enterprise AI-Powered Cyber Risk Management Platform - Iron Man-inspired cybersecurity",
+  "main": "frontend/src/index.ts",
+  "type": "module",
+  "engines": {
+    "node": ">=18.17.0",
+    "npm": ">=8.0.0"
+  },
+  "scripts": {
+    "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && poetry run uvicorn app.main:app --reload\"",
+    "build": "echo '✅ Build configuration ready - frontend and backend will be added in next phase'",
+    "start": "cd frontend && npm start",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx --max-warnings 0",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
+    "type-check": "cd frontend && tsc --noEmit --incremental",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage --watchAll=false",
+    "test:e2e": "playwright test",
+    "test:db": "jest --testPathPattern=database",
+    "security:audit": "npm audit --audit-level moderate",
+    "db:generate": "cd backend && poetry run prisma generate",
+    "db:push": "cd backend && poetry run prisma db push",
+    "db:migrate": "cd backend && poetry run prisma migrate dev",
+    "precommit": "npm run lint && npm run type-check && npm run test && npm run build",
+    "prepare": "husky install",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "terraform:plan": "cd infrastructure/terraform && terraform plan",
+    "terraform:apply": "cd infrastructure/terraform && terraform apply",
+    "k8s:deploy": "kubectl apply -f infrastructure/kubernetes/",
+    "monitoring:setup": "cd infrastructure/monitoring && docker-compose up -d"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raosunjoy/CyberShield-IronCore.git"
+  },
+  "keywords": [
+    "cybersecurity",
+    "ai",
+    "threat-intelligence",
+    "enterprise",
+    "fastapi",
+    "react",
+    "tensorflow",
+    "palo-alto",
+    "iron-man",
+    "jarvis"
+  ],
+  "author": "CyberShield Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/raosunjoy/CyberShield-IronCore/issues"
+  },
+  "homepage": "https://github.com/raosunjoy/CyberShield-IronCore#readme",
+  "devDependencies": {
+    "@jest/globals": "^30.0.5",
+    "@playwright/test": "^1.40.0",
+    "@testing-library/jest-dom": "^6.6.4",
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "concurrently": "^8.0.0",
+    "eslint": "^8.50.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-react": "^7.33.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-security": "^1.7.0",
+    "husky": "^8.0.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.0.0",
+    "jest-environment-jsdom": "^30.0.5",
+    "jest-html-reporters": "^3.1.7",
+    "jest-junit": "^16.0.0",
+    "lint-staged": "^15.0.0",
+    "node-notifier": "^10.0.1",
+    "prettier": "^3.0.0",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.2.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "engines-strict": true
+}

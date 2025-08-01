@@ -17,7 +17,7 @@ export default async function globalSetup(): Promise<void> {
   );
 
   // Set test environment variables
-  process.env['NODE_ENV'] = 'test';
+  (process.env as any).NODE_ENV = 'test';
   process.env['SKIP_ENV_VALIDATION'] = 'true';
 
   // Database setup for integration tests

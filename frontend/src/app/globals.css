@@ -1,0 +1,503 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Iron Man Custom Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+
+/* CSS Variables for Iron Man Theme */
+:root {
+  /* Arc Reactor Colors */
+  --arc-blue: #00d4ff;
+  --arc-blue-light: #4fe4ff;
+  --arc-blue-dark: #0099cc;
+  --arc-glow: #00ffff;
+
+  /* Gold Colors */
+  --gold: #ffd700;
+  --gold-light: #ffed4e;
+  --gold-dark: #b8860b;
+  --gold-metallic: #d4af37;
+
+  /* Iron Man Red */
+  --red-ironman: #dc143c;
+  --red-ironman-light: #ff6b6b;
+  --red-ironman-dark: #8b0000;
+
+  /* JARVIS Colors */
+  --jarvis-primary: #00d4ff;
+  --jarvis-secondary: #0099cc;
+  --jarvis-accent: #ffd700;
+  --jarvis-background: #0a0e1a;
+  --jarvis-surface: #1a202c;
+  --jarvis-surface-light: #2d3748;
+
+  /* Cyber Colors */
+  --cyber-neon: #00ffff;
+  --cyber-neon-pink: #ff10f0;
+  --cyber-neon-green: #39ff14;
+  --cyber-neon-orange: #ff8c00;
+  --cyber-neon-purple: #9d4edd;
+
+  /* Gradients */
+  --arc-gradient: radial-gradient(
+    circle,
+    var(--arc-blue) 0%,
+    var(--arc-blue-dark) 50%,
+    #003f5c 100%
+  );
+  --gold-gradient: linear-gradient(
+    135deg,
+    var(--gold) 0%,
+    var(--gold-dark) 100%
+  );
+  --jarvis-gradient: linear-gradient(
+    135deg,
+    var(--jarvis-background) 0%,
+    var(--jarvis-surface) 50%,
+    var(--jarvis-surface-light) 100%
+  );
+
+  /* Shadows */
+  --arc-glow-shadow: 0 0 20px var(--arc-blue), inset 0 0 20px var(--arc-blue);
+  --gold-glow-shadow: 0 0 20px var(--gold), inset 0 0 10px var(--gold);
+  --threat-glow-shadow:
+    0 0 30px var(--red-ironman), inset 0 0 15px var(--red-ironman);
+  --jarvis-glow-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+  --hologram-shadow: 0 8px 32px rgba(0, 212, 255, 0.3);
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  background: var(--jarvis-background);
+  color: white;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Custom Scrollbar - Iron Man Style */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(26, 32, 44, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--arc-blue);
+  border-radius: 4px;
+  box-shadow: 0 0 10px var(--arc-blue);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--arc-blue-light);
+  box-shadow: 0 0 15px var(--arc-blue-light);
+}
+
+/* Firefox Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--arc-blue) rgba(26, 32, 44, 0.5);
+}
+
+/* Selection */
+::selection {
+  background: rgba(0, 212, 255, 0.3);
+  color: white;
+}
+
+::-moz-selection {
+  background: rgba(0, 212, 255, 0.3);
+  color: white;
+}
+
+/* Focus Styles */
+:focus {
+  outline: 2px solid var(--arc-blue);
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Iron Man Custom Components */
+.arc-reactor {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--arc-gradient);
+  box-shadow: var(--arc-glow-shadow);
+  animation: arc-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.arc-reactor::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--arc-blue-light);
+  animation: arc-spin 4s linear infinite;
+}
+
+.arc-reactor::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--arc-blue-light) 0%,
+    transparent 70%
+  );
+  animation: arc-glow 3s ease-in-out infinite;
+}
+
+/* JARVIS Text Effects */
+.jarvis-text {
+  font-family: var(--font-orbitron), ui-sans-serif, system-ui, sans-serif;
+  color: var(--arc-blue);
+  text-shadow: 0 0 10px var(--arc-blue);
+  letter-spacing: 0.05em;
+}
+
+.jarvis-glow {
+  text-shadow:
+    0 0 5px var(--arc-blue),
+    0 0 10px var(--arc-blue),
+    0 0 15px var(--arc-blue),
+    0 0 20px var(--arc-blue);
+}
+
+/* Hologram Effects */
+.hologram {
+  position: relative;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(0, 212, 255, 0.1) 50%,
+    transparent 70%
+  );
+  background-size: 20px 20px;
+  animation: hologram 2s ease-in-out infinite alternate;
+}
+
+.hologram::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: scan-line 2s linear infinite;
+}
+
+/* HUD Elements */
+.hud-panel {
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--arc-blue);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--jarvis-glow-shadow);
+}
+
+.hud-button {
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid var(--arc-blue);
+  border-radius: 4px;
+  color: var(--arc-blue);
+  padding: 8px 16px;
+  font-family: var(--font-orbitron);
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.hud-button:hover {
+  background: rgba(0, 212, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.hud-button:active {
+  transform: translateY(0);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.8);
+}
+
+/* Threat Indicators */
+.threat-critical {
+  border-color: var(--red-ironman) !important;
+  box-shadow: var(--threat-glow-shadow) !important;
+  animation: threat-pulse 1.5s ease-in-out infinite;
+}
+
+.threat-high {
+  border-color: #ff8c00 !important;
+  box-shadow:
+    0 0 20px #ff8c00,
+    inset 0 0 10px #ff8c00 !important;
+}
+
+.threat-medium {
+  border-color: var(--gold) !important;
+  box-shadow: var(--gold-glow-shadow) !important;
+}
+
+.threat-low {
+  border-color: #39ff14 !important;
+  box-shadow:
+    0 0 15px #39ff14,
+    inset 0 0 8px #39ff14 !important;
+}
+
+/* Matrix Rain Effect */
+.matrix-rain {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.1;
+}
+
+.matrix-rain::before {
+  content: '01001010010101001010101010010101001010101010101001010101010101010101010101010101';
+  position: absolute;
+  top: -100px;
+  left: 0;
+  color: var(--cyber-neon-green);
+  font-family: var(--font-jetbrains-mono);
+  font-size: 12px;
+  line-height: 14px;
+  animation: matrix-rain 10s linear infinite;
+  white-space: pre;
+  word-break: break-all;
+}
+
+/* Glitch Effects */
+.glitch {
+  position: relative;
+  animation: glitch 0.5s linear infinite;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch::before {
+  animation: glitch 0.3s linear infinite reverse;
+  color: #ff0040;
+  z-index: -1;
+}
+
+.glitch::after {
+  animation: glitch 0.3s linear infinite;
+  color: #00ff40;
+  z-index: -2;
+}
+
+/* Power-up Animation */
+.power-up {
+  animation: power-up 0.8s ease-out;
+}
+
+/* JARVIS Boot Sequence */
+.jarvis-boot {
+  animation: jarvis-boot 3s ease-out;
+}
+
+/* HUD Flicker */
+.hud-flicker {
+  animation: hud-flicker 0.1s ease-in-out infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .arc-reactor {
+    width: 60px;
+    height: 60px;
+  }
+
+  .jarvis-text {
+    font-size: 14px;
+  }
+
+  .hud-panel {
+    padding: 12px;
+    margin: 8px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .arc-reactor,
+  .hologram,
+  .matrix-rain,
+  .hud-flicker {
+    animation: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  :root {
+    --arc-blue: #ffffff;
+    --jarvis-background: #000000;
+    --jarvis-surface: #333333;
+  }
+}
+
+/* Dark Mode Overrides */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+/* Utility Classes */
+.text-shadow-glow {
+  text-shadow: 0 0 10px currentColor;
+}
+
+.border-glow {
+  box-shadow:
+    0 0 10px currentColor,
+    inset 0 0 10px currentColor;
+}
+
+.bg-gradient-arc {
+  background: var(--arc-gradient);
+}
+
+.bg-gradient-gold {
+  background: var(--gold-gradient);
+}
+
+.bg-gradient-jarvis {
+  background: var(--jarvis-gradient);
+}
+
+/* Iron Man Loading Spinner */
+.iron-man-loader {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(0, 212, 255, 0.3);
+  border-top: 3px solid var(--arc-blue);
+  border-radius: 50%;
+  animation: arc-spin 1s linear infinite;
+}
+
+/* JARVIS Command Line */
+.jarvis-terminal {
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid var(--arc-blue);
+  border-radius: 8px;
+  font-family: var(--font-jetbrains-mono);
+  color: var(--arc-blue);
+  padding: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.jarvis-terminal::before {
+  content: '> JARVIS_v4.2.0 $ ';
+  color: var(--gold);
+}
+
+/* Arc Reactor Sizes */
+.arc-xs {
+  width: 20px;
+  height: 20px;
+}
+.arc-sm {
+  width: 40px;
+  height: 40px;
+}
+.arc-md {
+  width: 60px;
+  height: 60px;
+}
+.arc-lg {
+  width: 100px;
+  height: 100px;
+}
+.arc-xl {
+  width: 120px;
+  height: 120px;
+}
+
+/* Success States */
+.success-glow {
+  box-shadow:
+    0 0 20px #39ff14,
+    inset 0 0 10px #39ff14;
+  border-color: #39ff14;
+}
+
+/* Warning States */
+.warning-glow {
+  box-shadow:
+    0 0 20px var(--gold),
+    inset 0 0 10px var(--gold);
+  border-color: var(--gold);
+}
+
+/* Error States */
+.error-glow {
+  box-shadow:
+    0 0 20px var(--red-ironman),
+    inset 0 0 10px var(--red-ironman);
+  border-color: var(--red-ironman);
+}

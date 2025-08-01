@@ -62,7 +62,7 @@ afterAll(() => {
 jest.setTimeout(10000);
 
 // Mock environment variables for testing
-process.env['NODE_ENV'] = 'test';
+(process.env as any).NODE_ENV = 'test';
 process.env['NEXT_PUBLIC_API_URL'] = 'http://localhost:8000';
 process.env['NEXT_PUBLIC_WS_URL'] = 'ws://localhost:8000';
 

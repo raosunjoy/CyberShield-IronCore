@@ -12,7 +12,8 @@
       "@/api/*": ["./src/api/*"],
       "@/styles/*": ["./src/styles/*"]
     },
-    "types": ["node", "jest"]
+    "types": ["node", "jest"],
+    "jsx": "preserve"
   },
   "include": [
     "src/**/*",
@@ -20,7 +21,8 @@
     "**/*.test.ts",
     "**/*.test.tsx",
     "**/*.spec.ts",
-    "**/*.spec.tsx"
+    "**/*.spec.tsx",
+    ".next/types/**/*.ts"
   ],
   "exclude": ["node_modules", "../backend", "../infrastructure"]
 }

@@ -211,7 +211,7 @@ const ThreatTimeline: React.FC<ThreatTimelineProps> = ({
 
               {/* Event Card */}
               <motion.div
-                {...(isInteractive && { whileHover: { scale: 1.02 } })}
+                {...(isInteractive ? { whileHover: { scale: 1.02 } } : {})}
                 className={`${getEventColor(event.severity, event.eventType)} border rounded p-3 cursor-pointer transition-all`}
                 onClick={() => {
                   if (isInteractive) {

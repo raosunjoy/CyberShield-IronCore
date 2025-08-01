@@ -271,8 +271,8 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
   };
 
   const extractThreatId = (command: string) => {
-    const match = command.match(/[T]-[\d]{3,}/i);
-    return match ? match[0] : 'T-001';
+    const match = command.match(/T-\d{4}-\d{3}/i);
+    return match ? match[0] : 'T-2024-001';
   };
 
   const extractIP = (command: string) => {

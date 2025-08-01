@@ -112,7 +112,7 @@ describe('ThreatHeatmap', () => {
   });
 
   it('renders threat heatmap with correct dimensions', () => {
-    render(
+    const { container } = render(
       <ThreatHeatmap
         width={800}
         height={600}
@@ -121,7 +121,7 @@ describe('ThreatHeatmap', () => {
       />
     );
 
-    const canvas = screen.getByRole('img', { hidden: true }); // Canvas has img role
+    const canvas = container.querySelector('canvas');
     expect(canvas).toBeInTheDocument();
     expect(canvas).toHaveAttribute('width', '800');
     expect(canvas).toHaveAttribute('height', '600');
@@ -136,9 +136,19 @@ describe('ThreatHeatmap', () => {
     );
 
     expect(screen.getByText('THREAT STATISTICS')).toBeInTheDocument();
-    expect(screen.getByText(`Total Threats: ${mockThreatData.length}`)).toBeInTheDocument();
-    expect(screen.getByText('Critical: 1')).toBeInTheDocument();
-    expect(screen.getByText('High: 1')).toBeInTheDocument();
+    
+    // Use more flexible text matching for elements with spans
+    expect(screen.getByText((_content, element) => {
+      return element?.textContent === `Total Threats: ${mockThreatData.length}`;
+    })).toBeInTheDocument();
+    
+    expect(screen.getByText((_content, element) => {
+      return element?.textContent === 'Critical: 1';
+    })).toBeInTheDocument();
+    
+    expect(screen.getByText((_content, element) => {
+      return element?.textContent === 'High: 1';
+    })).toBeInTheDocument();
   });
 
   it('displays severity legend', () => {
@@ -157,7 +167,7 @@ describe('ThreatHeatmap', () => {
   });
 
   it('shows tooltip on mouse hover', async () => {
-    render(
+    const { container } = render(
       <ThreatHeatmap
         width={800}
         height={600}
@@ -166,25 +176,37 @@ describe('ThreatHeatmap', () => {
       />
     );
 
-    const canvas = screen.getByRole('img', { hidden: true });
+    const canvas = container.querySelector('canvas');
+    expect(canvas).toBeInTheDocument();
     
     // Simulate mouse move over a threat location
-    fireEvent.mouseMove(canvas, {
+    fireEvent.mouseMove(canvas!, {
       clientX: 400, // 50% of 800px width
       clientY: 300, // 50% of 600px height
     });
 
     await waitFor(() => {
       expect(screen.getByText('THREAT DETECTED: MALWARE')).toBeInTheDocument();
-      expect(screen.getByText('Risk Score: 85/100')).toBeInTheDocument();
-      expect(screen.getByText('AI Confidence: 95%')).toBeInTheDocument();
-      expect(screen.getByText('Severity: HIGH')).toBeInTheDocument();
+      
+      // Use flexible text matching for elements with spans
+      expect(screen.getByText((_content, element) => {
+        return element?.textContent === 'Risk Score: 85/100';
+      })).toBeInTheDocument();
+      
+      expect(screen.getByText((_content, element) => {
+        return element?.textContent === 'AI Confidence: 95%';
+      })).toBeInTheDocument();
+      
+      expect(screen.getByText((_content, element) => {
+        return element?.textContent === 'Severity: HIGH';
+      })).toBeInTheDocument();
+      
       expect(screen.getByText('Source: 192.168.1.100')).toBeInTheDocument();
     });
   });
 
   it('calls onThreatClick when threat is clicked', async () => {
-    render(
+    const { container } = render(
       <ThreatHeatmap
         width={800}
         height={600}
@@ -193,16 +215,17 @@ describe('ThreatHeatmap', () => {
       />
     );
 
-    const canvas = screen.getByRole('img', { hidden: true });
+    const canvas = container.querySelector('canvas');
+    expect(canvas).toBeInTheDocument();
     
     // First hover to select the threat
-    fireEvent.mouseMove(canvas, {
+    fireEvent.mouseMove(canvas!, {
       clientX: 400,
       clientY: 300,
     });
 
     // Then click
-    fireEvent.click(canvas);
+    fireEvent.click(canvas!);
 
     await waitFor(() => {
       expect(mockOnThreatClick).toHaveBeenCalledWith(mockThreatData[0]);
@@ -219,7 +242,10 @@ describe('ThreatHeatmap', () => {
 
     // Calculate expected average: (85 + 95 + 65) / 3 = 81.67 -> rounded to 82
     const avgRisk = Math.round(mockThreatData.reduce((sum, t) => sum + t.riskScore, 0) / mockThreatData.length);
-    expect(screen.getByText(`Avg Risk: ${avgRisk}`)).toBeInTheDocument();
+    
+    expect(screen.getByText((_content, element) => {
+      return element?.textContent === `Avg Risk: ${avgRisk}`;
+    })).toBeInTheDocument();
   });
 
   it('handles empty threat data gracefully', () => {
@@ -230,10 +256,21 @@ describe('ThreatHeatmap', () => {
       />
     );
 
-    expect(screen.getByText('Total Threats: 0')).toBeInTheDocument();
-    expect(screen.getByText('Critical: 0')).toBeInTheDocument();
-    expect(screen.getByText('High: 0')).toBeInTheDocument();
-    expect(screen.getByText('Avg Risk: 0')).toBeInTheDocument();
+    expect(screen.getByText((_content, element) => {
+      return element?.textContent === 'Total Threats: 0';
+    })).toBeInTheDocument();
+    
+    expect(screen.getByText((_content, element) => {
+      return element?.textContent === 'Critical: 0';
+    })).toBeInTheDocument();
+    
+    expect(screen.getByText((_content, element) => {
+      return element?.textContent === 'High: 0';
+    })).toBeInTheDocument();
+    
+    expect(screen.getByText((_content, element) => {
+      return element?.textContent === 'Avg Risk: 0';
+    })).toBeInTheDocument();
   });
 
   it('applies correct severity colors', () => {
@@ -254,7 +291,7 @@ describe('ThreatHeatmap', () => {
     const customWidth = 1200;
     const customHeight = 800;
 
-    render(
+    const { container } = render(
       <ThreatHeatmap
         width={customWidth}
         height={customHeight}
@@ -263,7 +300,8 @@ describe('ThreatHeatmap', () => {
       />
     );
 
-    const canvas = screen.getByRole('img', { hidden: true });
+    const canvas = container.querySelector('canvas');
+    expect(canvas).toBeInTheDocument();
     expect(canvas).toHaveAttribute('width', customWidth.toString());
     expect(canvas).toHaveAttribute('height', customHeight.toString());
   });
@@ -291,14 +329,22 @@ describe('ThreatHeatmap', () => {
       />
     );
 
-    expect(screen.getByText('Total Threats: 4')).toBeInTheDocument();
-    expect(screen.getByText('Critical: 1')).toBeInTheDocument();
-    expect(screen.getByText('High: 1')).toBeInTheDocument();
+    expect(screen.getByText((_content, element) => {
+      return element?.textContent === 'Total Threats: 4';
+    })).toBeInTheDocument();
+    
+    expect(screen.getByText((_content, element) => {
+      return element?.textContent === 'Critical: 1';
+    })).toBeInTheDocument();
+    
+    expect(screen.getByText((_content, element) => {
+      return element?.textContent === 'High: 1';
+    })).toBeInTheDocument();
     // Low severity threats are counted but not specifically displayed in this view
   });
 
   it('updates tooltip position based on mouse coordinates', async () => {
-    render(
+    const { container } = render(
       <ThreatHeatmap
         width={800}
         height={600}
@@ -307,22 +353,27 @@ describe('ThreatHeatmap', () => {
       />
     );
 
-    const canvas = screen.getByRole('img', { hidden: true });
+    const canvas = container.querySelector('canvas');
+    expect(canvas).toBeInTheDocument();
     
     // Simulate mouse move
-    fireEvent.mouseMove(canvas, {
+    fireEvent.mouseMove(canvas!, {
       clientX: 400,
       clientY: 300,
     });
 
     await waitFor(() => {
-      const tooltip = screen.getByText('THREAT DETECTED: MALWARE').closest('div');
+      const tooltipContent = screen.getByText('THREAT DETECTED: MALWARE');
+      expect(tooltipContent).toBeInTheDocument();
+      
+      // Find the actual tooltip container (parent with fixed positioning)
+      const tooltip = tooltipContent.closest('[class*="fixed"]');
       expect(tooltip).toBeInTheDocument();
-      // The tooltip should be positioned based on mouse coordinates
-      expect(tooltip).toHaveStyle({
-        left: '410px', // clientX + 10
-        top: '290px',  // clientY - 10, then translateY(-100%)
-      });
+      expect(tooltip).toHaveClass('fixed');
+      expect(tooltip).toHaveAttribute('style');
+      const styleAttr = tooltip!.getAttribute('style');
+      expect(styleAttr).toContain('left: 410px');
+      expect(styleAttr).toContain('top: 290px');
     });
   });
 });

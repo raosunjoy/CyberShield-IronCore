@@ -103,26 +103,48 @@ class ThreatIntelligenceService:
         self,
         virustotal_api_key: Optional[str] = None,
         mitre_attack_data_path: str = "/tmp/cybershield/mitre_attack.json",
-        cache_ttl_hours: int = 24,
+        cache_ttl_hours: int = 48,  # Extended to 48 hours for enterprise reliability
         max_concurrent_requests: int = 10,
-        rate_limit_per_minute: int = 500
+        rate_limit_per_minute: int = 4  # Conservative VirusTotal free tier default
     ):
-        self.virustotal_api_key = virustotal_api_key
+        import os
+        
+        # Use environment variable if API key not provided
+        self.virustotal_api_key = virustotal_api_key or os.getenv('VIRUSTOTAL_API_KEY')
         self.mitre_data_path = mitre_attack_data_path
         self.cache_ttl = timedelta(hours=cache_ttl_hours)
         self.max_concurrent_requests = max_concurrent_requests
-        self.rate_limit = rate_limit_per_minute
         
-        # Caching
+        # Enterprise rate limiting configuration
+        self.rate_limit = int(os.getenv('VIRUSTOTAL_RATE_LIMIT', str(rate_limit_per_minute)))
+        self.max_retries = 3
+        self.retry_delay = 2.0
+        
+        # Enhanced caching with TTL tracking
         self.ioc_cache: Dict[str, ThreatIntelligenceResult] = {}
+        self.cache_timestamps: Dict[str, datetime] = {}
         self.mitre_techniques: Dict[str, MitreAttackTechnique] = {}
         
-        # Rate limiting
+        # Rate limiting with exponential backoff
         self.request_timestamps: List[datetime] = []
         self.semaphore = asyncio.Semaphore(max_concurrent_requests)
         
-        # Session for HTTP requests
+        # Session for HTTP requests with proper timeout
         self.session: Optional[aiohttp.ClientSession] = None
+        
+        # Statistics for monitoring
+        self.stats = {
+            'total_requests': 0,
+            'cache_hits': 0,
+            'cache_misses': 0,
+            'api_errors': 0,
+            'rate_limit_hits': 0
+        }
+        
+        logger.info(
+            f"ThreatIntelligenceService initialized - Rate limit: {self.rate_limit} req/min, "
+            f"Cache TTL: {cache_ttl_hours}h, API key: {'✓' if self.virustotal_api_key else '✗'}"
+        )
         
         # Known malicious indicators (can be loaded from feeds)
         self.known_malicious_ips: Set[str] = set()
@@ -300,91 +322,174 @@ class ThreatIntelligenceService:
         ioc: str,
         ioc_type: IOCType
     ) -> Optional[VirusTotalResult]:
-        """Query VirusTotal API for IOC information"""
+        """Query VirusTotal API v3 for IOC information with enterprise-grade rate limiting"""
         
         if not self.virustotal_api_key or not self.session:
+            logger.warning("VirusTotal API key or session not available")
             return None
         
         try:
-            # Rate limiting
+            # Rate limiting - VT API v3 allows 4 requests per minute for free tier
             await self._enforce_rate_limit()
             
-            # Determine API endpoint
+            # Prepare headers for v3 API
+            headers = {
+                'X-Apikey': self.virustotal_api_key,
+                'Accept': 'application/json',
+                'User-Agent': 'CyberShield-IronCore/1.0'
+            }
+            
+            # Determine API endpoint based on IOC type
+            base_url = "https://www.virustotal.com/api/v3"
+            
             if ioc_type == IOCType.FILE_HASH:
-                url = f"https://www.virustotal.com/vtapi/v2/file/report"
-                params = {'apikey': self.virustotal_api_key, 'resource': ioc}
-            elif ioc_type in [IOCType.IP_ADDRESS, IOCType.DOMAIN]:
-                if ioc_type == IOCType.IP_ADDRESS:
-                    url = f"https://www.virustotal.com/vtapi/v2/ip-address/report"
-                else:
-                    url = f"https://www.virustotal.com/vtapi/v2/domain/report"
-                params = {'apikey': self.virustotal_api_key, 'ip': ioc if ioc_type == IOCType.IP_ADDRESS else ioc, 'domain': ioc if ioc_type == IOCType.DOMAIN else None}
+                # Files endpoint
+                url = f"{base_url}/files/{ioc}"
+            elif ioc_type == IOCType.IP_ADDRESS:
+                # IP addresses endpoint
+                url = f"{base_url}/ip_addresses/{ioc}"
+            elif ioc_type == IOCType.DOMAIN:
+                # Domains endpoint
+                url = f"{base_url}/domains/{ioc}"
             elif ioc_type == IOCType.URL:
-                url = f"https://www.virustotal.com/vtapi/v2/url/report"
-                params = {'apikey': self.virustotal_api_key, 'resource': ioc}
+                # URLs need to be encoded - use URL ID endpoint
+                import base64
+                url_id = base64.urlsafe_b64encode(ioc.encode()).decode().strip('=')
+                url = f"{base_url}/urls/{url_id}"
             else:
+                logger.warning(f"Unsupported IOC type for VirusTotal: {ioc_type}")
                 return None
             
+            # Execute API call with proper rate limiting and error handling
             async with self.semaphore:
-                async with self.session.get(url, params=params) as response:
+                logger.info(f"Querying VirusTotal v3 API for {ioc_type.value}: {ioc[:50]}...")
+                
+                async with self.session.get(url, headers=headers, timeout=30) as response:
                     if response.status == 200:
                         data = await response.json()
-                        return self._parse_virustotal_response(data)
+                        result = self._parse_virustotal_v3_response(data, ioc, ioc_type)
+                        logger.info(f"VirusTotal analysis complete for {ioc}: {result.malicious_count}/{result.total_engines} detections")
+                        return result
+                        
+                    elif response.status == 404:
+                        logger.info(f"IOC not found in VirusTotal: {ioc}")
+                        return VirusTotalResult(
+                            malicious_count=0,
+                            suspicious_count=0,
+                            clean_count=0,
+                            timeout_count=0,
+                            total_engines=0,
+                            permalink='',
+                            scan_date=datetime.now(),
+                            detected_names=[],
+                            reputation=0
+                        )
+                        
+                    elif response.status == 429:
+                        logger.warning("VirusTotal API rate limit exceeded")
+                        # Implement exponential backoff
+                        await asyncio.sleep(60)  # Wait 1 minute
+                        return None
+                        
+                    elif response.status == 403:
+                        logger.error("VirusTotal API key invalid or quota exceeded")
+                        return None
+                        
                     else:
-                        logger.warning(f"VirusTotal API error: {response.status}")
+                        logger.warning(f"VirusTotal API error: {response.status} - {await response.text()}")
                         return None
         
+        except asyncio.TimeoutError:
+            logger.warning(f"VirusTotal API timeout for IOC: {ioc}")
+            return None
         except Exception as e:
-            logger.error(f"Error querying VirusTotal: {str(e)}")
+            logger.error(f"Error querying VirusTotal for {ioc}: {str(e)}")
             return None
     
-    def _parse_virustotal_response(self, data: Dict[str, Any]) -> Optional[VirusTotalResult]:
-        """Parse VirusTotal API response"""
+    def _parse_virustotal_v3_response(
+        self, 
+        data: Dict[str, Any], 
+        ioc: str, 
+        ioc_type: IOCType
+    ) -> Optional[VirusTotalResult]:
+        """Parse VirusTotal API v3 response with comprehensive analysis"""
         
         try:
-            if 'scans' in data:
-                # File/URL report
-                scans = data['scans']
-                malicious_count = sum(1 for scan in scans.values() if scan.get('detected', False))
-                total_engines = len(scans)
-                detected_names = [
-                    scan.get('result', '') for scan in scans.values()
-                    if scan.get('detected', False) and scan.get('result')
-                ]
+            if 'data' not in data:
+                logger.warning(f"No data section in VirusTotal response for {ioc}")
+                return None
                 
-                return VirusTotalResult(
-                    malicious_count=malicious_count,
-                    suspicious_count=0,  # VT v2 doesn't distinguish suspicious
-                    clean_count=total_engines - malicious_count,
-                    timeout_count=0,
-                    total_engines=total_engines,
-                    permalink=data.get('permalink', ''),
-                    scan_date=datetime.fromisoformat(data.get('scan_date', datetime.now().isoformat())),
-                    detected_names=detected_names,
-                    reputation=-malicious_count if malicious_count > 0 else 50
-                )
+            response_data = data['data']
+            attributes = response_data.get('attributes', {})
             
-            elif 'detected_urls' in data:
-                # IP/Domain report
-                detected_urls = data.get('detected_urls', [])
-                malicious_count = len([url for url in detected_urls if url.get('positives', 0) > 0])
-                
-                return VirusTotalResult(
-                    malicious_count=malicious_count,
-                    suspicious_count=0,
-                    clean_count=0,
-                    timeout_count=0,
-                    total_engines=1,
-                    permalink='',
-                    scan_date=datetime.now(),
-                    detected_names=[],
-                    reputation=-malicious_count * 10 if malicious_count > 0 else 50
-                )
+            # Extract scan results from v3 API structure
+            last_analysis_stats = attributes.get('last_analysis_stats', {})
+            last_analysis_results = attributes.get('last_analysis_results', {})
             
-            return None
+            # Calculate detection counts
+            malicious_count = last_analysis_stats.get('malicious', 0)
+            suspicious_count = last_analysis_stats.get('suspicious', 0)
+            clean_count = last_analysis_stats.get('harmless', 0)
+            timeout_count = last_analysis_stats.get('timeout', 0)
+            undetected_count = last_analysis_stats.get('undetected', 0)
+            
+            total_engines = sum([
+                malicious_count, suspicious_count, clean_count, 
+                timeout_count, undetected_count
+            ])
+            
+            # Extract detected malware names
+            detected_names = []
+            for engine, result in last_analysis_results.items():
+                if result.get('category') in ['malicious', 'suspicious']:
+                    result_name = result.get('result', '')
+                    if result_name and result_name not in detected_names:
+                        detected_names.append(f"{engine}: {result_name}")
+            
+            # Calculate reputation score (-100 to 100)
+            if total_engines > 0:
+                detection_ratio = (malicious_count + suspicious_count) / total_engines
+                reputation = int(50 - (detection_ratio * 150))  # Scale to -100 to 50
+            else:
+                reputation = 0
+            
+            # Get scan date
+            scan_date = datetime.now()
+            if 'last_analysis_date' in attributes:
+                try:
+                    scan_date = datetime.fromtimestamp(attributes['last_analysis_date'])
+                except (ValueError, TypeError):
+                    pass
+            
+            # Generate permalink
+            permalink = ''
+            if 'id' in response_data:
+                resource_id = response_data['id']
+                if ioc_type == IOCType.FILE_HASH:
+                    permalink = f"https://www.virustotal.com/gui/file/{resource_id}"
+                elif ioc_type == IOCType.IP_ADDRESS:
+                    permalink = f"https://www.virustotal.com/gui/ip-address/{resource_id}"
+                elif ioc_type == IOCType.DOMAIN:
+                    permalink = f"https://www.virustotal.com/gui/domain/{resource_id}"
+                elif ioc_type == IOCType.URL:
+                    permalink = f"https://www.virustotal.com/gui/url/{resource_id}"
+            
+            logger.debug(f"VirusTotal v3 analysis for {ioc}: {malicious_count}M/{suspicious_count}S/{clean_count}C/{total_engines}T")
+            
+            return VirusTotalResult(
+                malicious_count=malicious_count,
+                suspicious_count=suspicious_count,
+                clean_count=clean_count,
+                timeout_count=timeout_count,
+                total_engines=total_engines,
+                permalink=permalink,
+                scan_date=scan_date,
+                detected_names=detected_names[:10],  # Limit to top 10 detections
+                reputation=reputation
+            )
             
         except Exception as e:
-            logger.error(f"Error parsing VirusTotal response: {str(e)}")
+            logger.error(f"Error parsing VirusTotal v3 response for {ioc}: {str(e)}")
             return None
     
     async def _map_to_mitre_attack(

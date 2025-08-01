@@ -33,7 +33,7 @@
       "@/api/*": ["./frontend/src/api/*"],
       "@/styles/*": ["./frontend/src/styles/*"]
     },
-    
+
     // Strict Type Checking - NON-NEGOTIABLE
     "noImplicitAny": true,
     "noImplicitReturns": true,
@@ -47,19 +47,19 @@
     "exactOptionalPropertyTypes": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
-    
+
     // Advanced Type Checking
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noPropertyAccessFromIndexSignature": true,
-    
+
     // Emit Configuration
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": ".",
-    
+
     // Module Resolution
     "typeRoots": ["./node_modules/@types", "./types"],
     "types": ["node", "jest", "@testing-library/jest-dom"]

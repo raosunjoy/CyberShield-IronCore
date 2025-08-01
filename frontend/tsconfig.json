@@ -22,9 +22,5 @@
     "**/*.spec.ts",
     "**/*.spec.tsx"
   ],
-  "exclude": [
-    "node_modules",
-    "../backend",
-    "../infrastructure"
-  ]
+  "exclude": ["node_modules", "../backend", "../infrastructure"]
 }

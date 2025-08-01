@@ -18,7 +18,7 @@ export function formatMessage(message: string): string {
 /**
  * Enterprise math utility for testing
  * @param a - First number
- * @param b - Second number  
+ * @param b - Second number
  * @returns Sum of the numbers
  */
 export function add(a: number, b: number): number {

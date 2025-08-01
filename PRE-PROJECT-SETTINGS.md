@@ -15,6 +15,7 @@ This document establishes the non-negotiable development standards and quality g
 ### 1. Test-Driven Development (TDD) Process
 
 #### TDD Workflow - MANDATORY
+
 ```bash
 # Step 1: Write failing test first
 npm run test:watch
@@ -30,6 +31,7 @@ npm run test:coverage
 ```
 
 #### Testing Requirements
+
 - **100% Test Coverage**: No code ships without corresponding tests
 - **100% Test Pass Rate**: All tests must pass before task completion
 - **Test Types Required**:
@@ -39,6 +41,7 @@ npm run test:coverage
   - Security tests for authentication/authorization
 
 #### Testing Stack
+
 ```json
 {
   "jest": "^29.0.0",
@@ -52,12 +55,14 @@ npm run test:coverage
 ### 2. Code Quality Standards
 
 #### TypeScript Requirements
+
 - **Zero TypeScript Errors**: `npm run type-check` must pass with 0 errors
 - **Strict Mode Enabled**: TypeScript strict mode mandatory
 - **Type Coverage**: 100% type coverage, no `any` types allowed
 - **Interface Definitions**: All API responses and data structures must be typed
 
 #### ESLint Requirements
+
 - **Zero Lint Errors**: `npm run lint` must pass with 0 errors/warnings
 - **Zero Lint Warnings**: Warnings are treated as errors
 - **Custom Rules**:
@@ -67,6 +72,7 @@ npm run test:coverage
   - Enforce consistent naming conventions
 
 #### Function Size Limit
+
 - **Maximum 75 Lines**: No function/method can exceed 75 lines
 - **Single Responsibility**: Each function does one thing well
 - **Extract Complex Logic**: Break down complex functions into smaller, testable units
@@ -74,6 +80,7 @@ npm run test:coverage
 ### 3. Build Validation Requirements
 
 #### Pre-Development Checklist
+
 ```bash
 # Run before starting any new feature
 npm run build          # Verify production build works
@@ -84,11 +91,13 @@ npm run security:audit # Check for security vulnerabilities
 ```
 
 #### Component Development Standards
+
 - **Import Validation**: All imports must resolve in both dev and production
 - **Shadcn/UI Components**: Create missing components immediately when referenced
 - **File Existence Check**: Verify actual files exist, not just TypeScript declarations
 
 #### Database Schema Synchronization
+
 ```bash
 # After any schema changes
 npx prisma generate    # Update Prisma client
@@ -99,6 +108,7 @@ npm run test:db        # Run database integration tests
 ### 4. Required NPM Scripts
 
 #### Package.json Scripts Configuration
+
 ```json
 {
   "scripts": {
@@ -125,6 +135,7 @@ npm run test:db        # Run database integration tests
 ### 5. Pre-Commit Quality Gates
 
 #### Git Hooks Configuration
+
 ```bash
 # .husky/pre-commit
 #!/usr/bin/env sh
@@ -132,7 +143,7 @@ npm run test:db        # Run database integration tests
 
 # Non-negotiable checks
 npm run lint
-npm run type-check  
+npm run type-check
 npm run test
 npm run build
 
@@ -144,6 +155,7 @@ npm run test:coverage -- --coverageThreshold='{"global":{"branches":100,"functio
 ```
 
 #### Commit Standards
+
 - **Conventional Commits**: Use conventional commit format
 - **Atomic Commits**: One logical change per commit
 - **Descriptive Messages**: Clear description of what and why
@@ -151,6 +163,7 @@ npm run test:coverage -- --coverageThreshold='{"global":{"branches":100,"functio
 ### 6. Development Environment Setup
 
 #### Required Tools
+
 ```bash
 # Node.js version management
 nvm install 18.17.0
@@ -166,6 +179,7 @@ npm install -g playwright
 ```
 
 #### VS Code Configuration
+
 ```json
 // .vscode/settings.json
 {
@@ -183,12 +197,14 @@ npm install -g playwright
 ### 7. Production-Ready Development Standards
 
 #### Build Verification
+
 - **Production Build Test**: `npm run build` must succeed locally
 - **Type Safety**: All types must be explicitly defined
 - **Performance Checks**: Lighthouse score >90 for critical pages
 - **Bundle Analysis**: Check bundle size with `npm run analyze`
 
 #### Security Standards
+
 - **No Secrets in Code**: Use environment variables for all secrets
 - **Input Validation**: Validate all user inputs server-side
 - **Authentication**: Implement proper OAuth 2.0 + Okta integration
@@ -197,6 +213,7 @@ npm install -g playwright
 ### 8. Database Development Standards
 
 #### Prisma Schema Requirements
+
 ```prisma
 // Always include these fields
 model BaseModel {
@@ -207,6 +224,7 @@ model BaseModel {
 ```
 
 #### Migration Process
+
 ```bash
 # Schema changes workflow
 1. Update schema.prisma
@@ -220,6 +238,7 @@ model BaseModel {
 ### 9. API Development Standards
 
 #### FastAPI Requirements
+
 ```python
 # All endpoints must include:
 - Type hints for all parameters
@@ -241,17 +260,18 @@ async def create_threat(
 ```
 
 #### API Testing Requirements
+
 ```python
 # Test file structure for each endpoint
 class TestThreatEndpoints:
     async def test_create_threat_success(self):
         """Test successful threat creation"""
         pass
-    
+
     async def test_create_threat_unauthorized(self):
         """Test unauthorized access"""
         pass
-    
+
     async def test_create_threat_invalid_data(self):
         """Test invalid input validation"""
         pass
@@ -260,6 +280,7 @@ class TestThreatEndpoints:
 ### 10. Frontend Development Standards
 
 #### React Component Requirements
+
 ```typescript
 // Component structure template
 interface ComponentProps {
@@ -269,12 +290,12 @@ interface ComponentProps {
 export const Component: React.FC<ComponentProps> = ({ prop1, prop2 }) => {
   // Hooks at the top
   const [state, setState] = useState<StateType>(initialState);
-  
+
   // Event handlers
   const handleEvent = useCallback(() => {
     // Implementation
   }, [dependencies]);
-  
+
   // Render with proper error boundaries
   return (
     <ErrorBoundary>
@@ -289,19 +310,20 @@ export default Component;
 ```
 
 #### Component Testing Template
+
 ```typescript
 describe('Component', () => {
   it('renders correctly with required props', () => {
     render(<Component {...requiredProps} />);
     expect(screen.getByRole('...'));
   });
-  
+
   it('handles user interactions correctly', async () => {
     const user = userEvent.setup();
     render(<Component {...props} />);
     // Test user interactions
   });
-  
+
   it('handles error states gracefully', () => {
     // Test error scenarios
   });
@@ -323,7 +345,7 @@ describe('Component', () => {
 ✅ npm run test:coverage (100% coverage)
 ✅ npm run test:e2e (all E2E tests pass)
 
-# 3. Build Validation  
+# 3. Build Validation
 ✅ npm run build (successful production build)
 ✅ npm run security:audit (no high/critical vulnerabilities)
 
@@ -341,6 +363,7 @@ describe('Component', () => {
 ### 12. Continuous Integration Pipeline
 
 #### GitHub Actions Workflow
+
 ```yaml
 # .github/workflows/ci.yml
 name: CI Pipeline
@@ -352,31 +375,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18.17.0'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Lint check
         run: npm run lint
-      
+
       - name: Type check
         run: npm run type-check
-      
+
       - name: Run tests
         run: npm run test:coverage
-      
+
       - name: Build verification
         run: npm run build
-      
+
       - name: Security audit
         run: npm audit --audit-level moderate
-      
+
       - name: E2E tests
         run: npm run test:e2e
 ```
@@ -384,12 +407,14 @@ jobs:
 ### 13. Performance Standards
 
 #### Frontend Performance
+
 - **Core Web Vitals**: LCP <2.5s, FID <100ms, CLS <0.1
 - **Bundle Size**: Main bundle <250KB gzipped
 - **React Performance**: No unnecessary re-renders
 - **Image Optimization**: All images optimized and lazy-loaded
 
 #### Backend Performance
+
 - **API Response Time**: <100ms for 95th percentile
 - **Database Queries**: N+1 query prevention
 - **Caching Strategy**: Redis caching for frequent queries
@@ -398,13 +423,18 @@ jobs:
 ### 14. Security Development Standards
 
 #### Authentication & Authorization
+
 ```typescript
 // Security middleware example
-export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
+export const requireAuth = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (!token) throw new Error('No token provided');
-    
+
     const decoded = await verifyJWT(token);
     req.user = decoded;
     next();
@@ -415,26 +445,29 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 ```
 
 #### Input Validation
+
 ```typescript
 // Zod schema validation
 const ThreatCreateSchema = z.object({
   type: z.enum(['malware', 'phishing', 'ddos']),
   severity: z.number().min(1).max(10),
   description: z.string().min(10).max(1000),
-  indicators: z.array(z.string().url()).max(100)
+  indicators: z.array(z.string().url()).max(100),
 });
 ```
 
 ### 15. Documentation Requirements
 
 #### Code Documentation
+
 - **JSDoc Comments**: All public functions documented
 - **README Updates**: Keep README current with setup instructions
 - **API Documentation**: OpenAPI/Swagger specs for all endpoints
 - **Architecture Decisions**: Document all significant technical decisions
 
 #### Example Documentation
-```typescript
+
+````typescript
 /**
  * Calculates risk score based on threat indicators
  * @param indicators - Array of threat indicators
@@ -453,7 +486,7 @@ export async function calculateRiskScore(
 ): Promise<RiskScore> {
   // Implementation
 }
-```
+````
 
 ---
 

@@ -9,8 +9,10 @@
  * @returns Promise<void>
  */
 export default async function globalTeardown(): Promise<void> {
-  console.log('🛡️  CyberShield-IronCore: Cleaning up Enterprise Test Environment');
-  
+  console.log(
+    '🛡️  CyberShield-IronCore: Cleaning up Enterprise Test Environment'
+  );
+
   // Cleanup test database connections
   try {
     console.log('📊 Cleaning up test database connections...');
@@ -19,7 +21,7 @@ export default async function globalTeardown(): Promise<void> {
   } catch (error) {
     console.warn('⚠️  Test database cleanup skipped', error);
   }
-  
+
   // Cleanup temporary test files
   try {
     console.log('🧹 Cleaning up temporary test files...');
@@ -28,11 +30,11 @@ export default async function globalTeardown(): Promise<void> {
   } catch (error) {
     console.warn('⚠️  Temporary file cleanup skipped', error);
   }
-  
+
   // Cleanup mock services
   console.log('🔧 Shutting down mock services...');
   // Any mock service cleanup would go here
   console.log('✅ Mock services shut down');
-  
+
   console.log('🎯 Enterprise test environment cleanup completed!');
 }

@@ -2,9 +2,9 @@ name: 🛡️ CyberShield-IronCore CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 env:
   NODE_VERSION: '18.17.0'
@@ -15,237 +15,237 @@ jobs:
   quality-gates:
     name: 🎯 Enterprise Quality Gates
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [18.17.0]
-        
+
     steps:
-    - name: 📥 Checkout Repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        
-    - name: 🔧 Setup Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        
-    - name: 📦 Install Dependencies
-      run: |
-        npm ci
-        npm run prepare
-        
-    - name: 🔍 ESLint Check (Zero Errors/Warnings)
-      run: |
-        echo "🔍 Running ESLint with zero tolerance..."
-        npm run lint
-        echo "✅ ESLint passed - No errors or warnings!"
-        
-    - name: 🔧 TypeScript Type Check (Strict Mode)
-      run: |
-        echo "🔧 Running TypeScript type check..."
-        npm run type-check
-        echo "✅ TypeScript compilation successful!"
-        
-    - name: 🧪 Test Suite (100% Pass Rate)
-      run: |
-        echo "🧪 Running comprehensive test suite..."
-        npm run test
-        echo "✅ All tests passed!"
-        
-    - name: 📊 Test Coverage (100% Required)
-      run: |
-        echo "📊 Verifying 100% test coverage..."
-        npm run test:coverage
-        echo "✅ 100% test coverage achieved!"
-        
-    - name: 🏗️ Production Build Verification
-      run: |
-        echo "🏗️ Building for production..."
-        npm run build
-        echo "✅ Production build successful!"
-        
-    - name: 🔒 Security Audit (No High/Critical)
-      run: |
-        echo "🔒 Running security audit..."
-        npm run security:audit
-        echo "✅ Security audit passed!"
-        
-    - name: 💎 Code Formatting Check
-      run: |
-        echo "💎 Checking code formatting..."
-        npm run format:check
-        echo "✅ Code formatting verified!"
-        
-    - name: 📋 Upload Coverage Reports
-      uses: codecov/codecov-action@v3
-      with:
-        files: ./coverage/lcov.info
-        flags: unittests
-        name: cybershield-coverage
-        fail_ci_if_error: true
-        
-    - name: 📊 Upload Test Results
-      uses: dorny/test-reporter@v1
-      if: success() || failure()
-      with:
-        name: Jest Tests
-        path: coverage/junit.xml
-        reporter: jest-junit
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci
+          npm run prepare
+
+      - name: 🔍 ESLint Check (Zero Errors/Warnings)
+        run: |
+          echo "🔍 Running ESLint with zero tolerance..."
+          npm run lint
+          echo "✅ ESLint passed - No errors or warnings!"
+
+      - name: 🔧 TypeScript Type Check (Strict Mode)
+        run: |
+          echo "🔧 Running TypeScript type check..."
+          npm run type-check
+          echo "✅ TypeScript compilation successful!"
+
+      - name: 🧪 Test Suite (100% Pass Rate)
+        run: |
+          echo "🧪 Running comprehensive test suite..."
+          npm run test
+          echo "✅ All tests passed!"
+
+      - name: 📊 Test Coverage (100% Required)
+        run: |
+          echo "📊 Verifying 100% test coverage..."
+          npm run test:coverage
+          echo "✅ 100% test coverage achieved!"
+
+      - name: 🏗️ Production Build Verification
+        run: |
+          echo "🏗️ Building for production..."
+          npm run build
+          echo "✅ Production build successful!"
+
+      - name: 🔒 Security Audit (No High/Critical)
+        run: |
+          echo "🔒 Running security audit..."
+          npm run security:audit
+          echo "✅ Security audit passed!"
+
+      - name: 💎 Code Formatting Check
+        run: |
+          echo "💎 Checking code formatting..."
+          npm run format:check
+          echo "✅ Code formatting verified!"
+
+      - name: 📋 Upload Coverage Reports
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: cybershield-coverage
+          fail_ci_if_error: true
+
+      - name: 📊 Upload Test Results
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Jest Tests
+          path: coverage/junit.xml
+          reporter: jest-junit
 
   # Backend Quality Gates (Python/FastAPI)
   backend-quality:
     name: 🐍 Backend Quality Gates
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: 📥 Checkout Repository
-      uses: actions/checkout@v4
-      
-    - name: 🐍 Setup Python ${{ env.PYTHON_VERSION }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-        
-    - name: 📦 Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: latest
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-        
-    - name: 📦 Install Backend Dependencies
-      working-directory: ./backend
-      run: |
-        poetry install --no-dev
-        
-    - name: 🔍 Python Code Quality (Black, isort, flake8)
-      working-directory: ./backend
-      run: |
-        poetry run black --check .
-        poetry run isort --check-only .
-        poetry run flake8 .
-        
-    - name: 🔧 Python Type Check (mypy)
-      working-directory: ./backend
-      run: |
-        poetry run mypy .
-        
-    - name: 🧪 Backend Tests (pytest)
-      working-directory: ./backend
-      run: |
-        poetry run pytest --cov=app --cov-report=xml --cov-report=html
-        
-    - name: 🔒 Python Security Check (bandit)
-      working-directory: ./backend
-      run: |
-        poetry run bandit -r app/
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 📦 Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: 📦 Install Backend Dependencies
+        working-directory: ./backend
+        run: |
+          poetry install --no-dev
+
+      - name: 🔍 Python Code Quality (Black, isort, flake8)
+        working-directory: ./backend
+        run: |
+          poetry run black --check .
+          poetry run isort --check-only .
+          poetry run flake8 .
+
+      - name: 🔧 Python Type Check (mypy)
+        working-directory: ./backend
+        run: |
+          poetry run mypy .
+
+      - name: 🧪 Backend Tests (pytest)
+        working-directory: ./backend
+        run: |
+          poetry run pytest --cov=app --cov-report=xml --cov-report=html
+
+      - name: 🔒 Python Security Check (bandit)
+        working-directory: ./backend
+        run: |
+          poetry run bandit -r app/
 
   # End-to-End Tests
   e2e-tests:
     name: 🎭 End-to-End Tests
     runs-on: ubuntu-latest
     needs: [quality-gates, backend-quality]
-    
+
     steps:
-    - name: 📥 Checkout Repository
-      uses: actions/checkout@v4
-      
-    - name: 🔧 Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        
-    - name: 📦 Install Dependencies
-      run: npm ci
-      
-    - name: 🎭 Install Playwright
-      run: npx playwright install --with-deps
-      
-    - name: 🚀 Start Application
-      run: |
-        npm run build
-        npm run start &
-        sleep 10
-        
-    - name: 🎯 Run E2E Tests
-      run: |
-        npm run test:e2e
-        
-    - name: 📋 Upload E2E Test Results
-      uses: actions/upload-artifact@v3
-      if: failure()
-      with:
-        name: playwright-report
-        path: playwright-report/
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🎭 Install Playwright
+        run: npx playwright install --with-deps
+
+      - name: 🚀 Start Application
+        run: |
+          npm run build
+          npm run start &
+          sleep 10
+
+      - name: 🎯 Run E2E Tests
+        run: |
+          npm run test:e2e
+
+      - name: 📋 Upload E2E Test Results
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
 
   # Infrastructure Validation
   infrastructure-check:
     name: 🏗️ Infrastructure Validation
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: 📥 Checkout Repository
-      uses: actions/checkout@v4
-      
-    - name: 🏗️ Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.5.0
-        
-    - name: 🔧 Terraform Format Check
-      working-directory: ./infrastructure/terraform
-      run: terraform fmt -check -recursive
-      
-    - name: 🎯 Terraform Validate
-      working-directory: ./infrastructure/terraform
-      run: |
-        terraform init -backend=false
-        terraform validate
-        
-    - name: 🔒 Terraform Security Scan (tfsec)
-      uses: aquasecurity/tfsec-action@v1.0.0
-      with:
-        working_directory: './infrastructure/terraform'
-        
-    - name: 🐳 Docker Build Test
-      run: |
-        if [ -f "Dockerfile" ]; then
-          docker build -t cybershield-test .
-        fi
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: 🔧 Terraform Format Check
+        working-directory: ./infrastructure/terraform
+        run: terraform fmt -check -recursive
+
+      - name: 🎯 Terraform Validate
+        working-directory: ./infrastructure/terraform
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: 🔒 Terraform Security Scan (tfsec)
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          working_directory: './infrastructure/terraform'
+
+      - name: 🐳 Docker Build Test
+        run: |
+          if [ -f "Dockerfile" ]; then
+            docker build -t cybershield-test .
+          fi
 
   # Security Scanning
   security-scan:
     name: 🔒 Security Scanning
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: 📥 Checkout Repository
-      uses: actions/checkout@v4
-      
-    - name: 🔍 Run Trivy Vulnerability Scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'fs'
-        scan-ref: '.'
-        format: 'sarif'
-        output: 'trivy-results.sarif'
-        
-    - name: 📋 Upload Trivy Results
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        sarif_file: 'trivy-results.sarif'
-        
-    - name: 🔒 CodeQL Analysis
-      uses: github/codeql-action/init@v2
-      with:
-        languages: javascript, python
-        
-    - name: 🔍 Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔍 Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: 📋 Upload Trivy Results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: 🔒 CodeQL Analysis
+        uses: github/codeql-action/init@v2
+        with:
+          languages: javascript, python
+
+      - name: 🔍 Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
 
   # Performance Testing
   performance-test:
@@ -253,63 +253,70 @@ jobs:
     runs-on: ubuntu-latest
     needs: [quality-gates]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
+
     steps:
-    - name: 📥 Checkout Repository
-      uses: actions/checkout@v4
-      
-    - name: 🔧 Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        
-    - name: 📦 Install Dependencies
-      run: npm ci
-      
-    - name: 🚀 Start Application
-      run: |
-        npm run build
-        npm run start &
-        sleep 15
-        
-    - name: ⚡ Run Performance Tests
-      run: |
-        # Lighthouse CI for frontend performance
-        npx @lhci/cli@0.12.x autorun
-        
-    - name: 📊 Upload Performance Results
-      uses: actions/upload-artifact@v3
-      with:
-        name: lighthouse-results
-        path: .lighthouseci/
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🚀 Start Application
+        run: |
+          npm run build
+          npm run start &
+          sleep 15
+
+      - name: ⚡ Run Performance Tests
+        run: |
+          # Lighthouse CI for frontend performance
+          npx @lhci/cli@0.12.x autorun
+
+      - name: 📊 Upload Performance Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: lighthouse-results
+          path: .lighthouseci/
 
   # Deployment (Production Ready)
   deploy:
     name: 🚀 Deploy to Production
     runs-on: ubuntu-latest
-    needs: [quality-gates, backend-quality, e2e-tests, infrastructure-check, security-scan]
+    needs:
+      [
+        quality-gates,
+        backend-quality,
+        e2e-tests,
+        infrastructure-check,
+        security-scan,
+      ]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment: production
-    
+
     steps:
-    - name: 📥 Checkout Repository
-      uses: actions/checkout@v4
-      
-    - name: 🏗️ Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-        
-    - name: 🚀 Deploy to EKS
-      run: |
-        echo "🚀 Deploying CyberShield-IronCore to production..."
-        echo "✅ Deployment pipeline ready (pending infrastructure setup)"
-        
-    - name: 📢 Notification
-      if: success()
-      run: |
-        echo "🎉 CyberShield-IronCore deployed successfully!"
-        echo "🛡️ Enterprise-grade cybersecurity platform is live!"
-        echo "🤖 Iron Man would be proud!"
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: 🚀 Deploy to EKS
+        run: |
+          echo "🚀 Deploying CyberShield-IronCore to production..."
+          echo "✅ Deployment pipeline ready (pending infrastructure setup)"
+
+      - name: 📢 Notification
+        if: success()
+        run: |
+          echo "🎉 CyberShield-IronCore deployed successfully!"
+          echo "🛡️ Enterprise-grade cybersecurity platform is live!"
+          echo "🤖 Iron Man would be proud!"

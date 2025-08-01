@@ -1,0 +1,194 @@
+syntax = "proto3";
+
+package cybershield;
+
+// CyberShield-IronCore gRPC Service Definition
+// Enterprise-grade threat intelligence and risk management services
+
+service ThreatIntelligenceService {
+  // Real-time threat detection and scoring
+  rpc AnalyzeThreat(ThreatAnalysisRequest) returns (ThreatAnalysisResponse);
+  
+  // Batch threat processing for high throughput
+  rpc ProcessThreatBatch(ThreatBatchRequest) returns (ThreatBatchResponse);
+  
+  // Real-time threat intelligence feeds
+  rpc StreamThreatIntelligence(ThreatStreamRequest) returns (stream ThreatIntelligenceUpdate);
+}
+
+service RiskAssessmentService {
+  // AI-powered risk scoring
+  rpc CalculateRiskScore(RiskScoreRequest) returns (RiskScoreResponse);
+  
+  // Comprehensive risk assessment
+  rpc PerformRiskAssessment(RiskAssessmentRequest) returns (RiskAssessmentResponse);
+}
+
+service AutomatedMitigationService {
+  // Execute automated threat mitigation
+  rpc ExecuteMitigation(MitigationRequest) returns (MitigationResponse);
+  
+  // Stream mitigation status updates
+  rpc StreamMitigationStatus(MitigationStatusRequest) returns (stream MitigationStatusUpdate);
+}
+
+// Message definitions
+message ThreatAnalysisRequest {
+  string threat_id = 1;
+  repeated string indicators = 2;
+  map<string, string> context = 3;
+  int64 timestamp = 4;
+}
+
+message ThreatAnalysisResponse {
+  string threat_id = 1;
+  double risk_score = 2;
+  double confidence_score = 3;
+  ThreatCategory category = 4;
+  ThreatSeverity severity = 5;
+  repeated string mitre_tactics = 6;
+  repeated string recommended_actions = 7;
+}
+
+message ThreatBatchRequest {
+  repeated ThreatAnalysisRequest threats = 1;
+  int32 batch_size = 2;
+}
+
+message ThreatBatchResponse {
+  repeated ThreatAnalysisResponse results = 1;
+  int32 processed_count = 2;
+  int32 failed_count = 3;
+}
+
+message ThreatStreamRequest {
+  repeated string feed_types = 1;
+  ThreatSeverity min_severity = 2;
+}
+
+message ThreatIntelligenceUpdate {
+  string update_id = 1;
+  ThreatData threat_data = 2;
+  int64 timestamp = 3;
+}
+
+message RiskScoreRequest {
+  string asset_id = 1;
+  repeated string threat_indicators = 2;
+  map<string, double> context_factors = 3;
+}
+
+message RiskScoreResponse {
+  string asset_id = 1;
+  double risk_score = 2;
+  double confidence = 3;
+  repeated RiskFactor risk_factors = 4;
+}
+
+message RiskAssessmentRequest {
+  string organization_id = 1;
+  repeated string asset_ids = 2;
+  AssessmentScope scope = 3;
+}
+
+message RiskAssessmentResponse {
+  string assessment_id = 1;
+  double overall_risk_score = 2;
+  repeated AssetRiskSummary asset_risks = 3;
+  repeated string recommendations = 4;
+}
+
+message MitigationRequest {
+  string threat_id = 1;
+  MitigationType mitigation_type = 2;
+  map<string, string> parameters = 3;
+}
+
+message MitigationResponse {
+  string mitigation_id = 1;
+  MitigationStatus status = 2;
+  string message = 3;
+  repeated string actions_taken = 4;
+}
+
+message MitigationStatusRequest {
+  string mitigation_id = 1;
+}
+
+message MitigationStatusUpdate {
+  string mitigation_id = 1;
+  MitigationStatus status = 2;
+  string progress_message = 3;
+  int32 progress_percent = 4;
+}
+
+// Supporting message types
+message ThreatData {
+  string threat_id = 1;
+  string name = 2;
+  string description = 3;
+  ThreatCategory category = 4;
+  ThreatSeverity severity = 5;
+  repeated string indicators = 6;
+  map<string, string> metadata = 7;
+}
+
+message RiskFactor {
+  string factor_name = 1;
+  double weight = 2;
+  double value = 3;
+  string description = 4;
+}
+
+message AssetRiskSummary {
+  string asset_id = 1;
+  string asset_name = 2;
+  double risk_score = 3;
+  repeated string top_threats = 4;
+}
+
+// Enumerations
+enum ThreatCategory {
+  UNKNOWN = 0;
+  MALWARE = 1;
+  PHISHING = 2;
+  RANSOMWARE = 3;
+  DATA_BREACH = 4;
+  INSIDER_THREAT = 5;
+  APT = 6;
+  DDOS = 7;
+  VULNERABILITY = 8;
+  POLICY_VIOLATION = 9;
+}
+
+enum ThreatSeverity {
+  INFO = 0;
+  LOW = 1;
+  MEDIUM = 2;
+  HIGH = 3;
+  CRITICAL = 4;
+}
+
+enum AssessmentScope {
+  ORGANIZATION = 0;
+  DEPARTMENT = 1;
+  ASSET_GROUP = 2;
+  INDIVIDUAL_ASSET = 3;
+}
+
+enum MitigationType {
+  BLOCK_IP = 0;
+  QUARANTINE_FILE = 1;
+  DISABLE_USER = 2;
+  ISOLATE_SYSTEM = 3;
+  UPDATE_FIREWALL = 4;
+  CUSTOM_SCRIPT = 5;
+}
+
+enum MitigationStatus {
+  PENDING = 0;
+  IN_PROGRESS = 1;
+  COMPLETED = 2;
+  FAILED = 3;
+  CANCELLED = 4;
+}

@@ -1,0 +1,154 @@
+# CyberShield-IronCore Terraform Variables Example
+# Copy this file to terraform.tfvars and customize for your environment
+
+# AWS Configuration
+aws_region = "us-east-1"
+environment = "development" # development, staging, production
+
+# Project Configuration
+project_name = "cybershield-ironcore"
+cluster_name = "" # Will default to ${project_name}-${environment}-eks
+
+# Network Configuration
+vpc_cidr = "10.0.0.0/16"
+enable_nat_gateway = true
+enable_vpn_gateway = false
+
+# EKS Configuration
+cluster_version = "1.28"
+cluster_endpoint_private_access = true
+cluster_endpoint_public_access = true
+cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"] # Restrict this in production
+
+# Node Groups Configuration
+node_groups = {
+  cybershield_general = {
+    instance_types = ["t3.large"]
+    capacity_type  = "ON_DEMAND"
+    min_size      = 2
+    max_size      = 6
+    desired_size  = 3
+    disk_size     = 50
+    
+    labels = {
+      "node-type" = "general"
+      "workload"  = "application"
+    }
+  }
+  
+  # Uncomment for production high-performance workloads
+  # threat_processing = {
+  #   instance_types = ["c5.2xlarge"]
+  #   capacity_type  = "SPOT"
+  #   min_size      = 1
+  #   max_size      = 10
+  #   desired_size  = 2
+  #   disk_size     = 100
+  #   
+  #   labels = {
+  #     "node-type" = "compute-optimized"
+  #     "workload"  = "threat-processing"
+  #   }
+  #   
+  #   taints = {
+  #     dedicated = {
+  #       key    = "workload-type"
+  #       value  = "threat-processing"
+  #       effect = "NO_SCHEDULE"
+  #     }
+  #   }
+  # }
+}
+
+# Database Configuration
+db_name = "cybershield"
+db_username = "cybershield_admin"
+db_instance_class = "db.t3.large" # Use db.r6g.2xlarge for production
+db_allocated_storage = 100
+db_max_allocated_storage = 1000
+db_backup_retention_period = 7 # 30 for production
+db_multi_az = false # true for production
+db_deletion_protection = true
+
+# Redis Configuration
+redis_node_type = "cache.t3.micro" # Use cache.r6g.large for production
+redis_num_cache_nodes = 1 # Use 3 for production with replication
+redis_port = 6379
+redis_parameter_group_name = "default.redis7"
+
+# Security & Compliance
+enable_logging = true
+enable_monitoring = true
+enable_encryption = true
+kms_key_deletion_window = 7
+
+# Monitoring Configuration
+cloudwatch_log_retention = 30
+enable_container_insights = true
+
+# Load Balancer Configuration
+enable_load_balancer_logs = true
+load_balancer_idle_timeout = 60
+
+# Auto Scaling Configuration
+enable_cluster_autoscaler = true
+enable_metrics_server = true
+
+# Cost Optimization
+enable_spot_instances = false # true for non-critical workloads
+enable_scheduled_scaling = false
+
+# Disaster Recovery
+enable_cross_region_backup = false # true for production
+backup_region = "us-west-2"
+
+# Compliance (enable for production)
+enable_config = false
+enable_cloudtrail = true
+enable_guardduty = true
+enable_security_hub = false
+
+# Application Domain (optional)
+app_domain = "" # e.g., "cybershield.example.com"
+create_route53_zone = false
+ssl_certificate_arn = ""
+
+# Iron Man Configuration (because we're awesome)
+iron_man_mode = true
+jarvis_enabled = true
+
+# Additional Tags
+additional_tags = {
+  "Owner"       = "CyberShield-Team"
+  "Project"     = "Iron-Man-Cybersecurity"
+  "CostCenter"  = "R&D-Cybersecurity"
+  "Compliance"  = "SOC2-GDPR-HIPAA"
+  "Acquisition" = "Palo-Alto-Networks"
+}
+
+# Environment-specific Examples:
+
+## Development Environment
+# environment = "development"
+# db_instance_class = "db.t3.medium"
+# redis_node_type = "cache.t3.micro"
+# enable_cross_region_backup = false
+# enable_guardduty = false
+
+## Staging Environment
+# environment = "staging"
+# db_instance_class = "db.t3.large"
+# redis_node_type = "cache.t3.small"
+# db_multi_az = false
+# enable_cross_region_backup = false
+
+## Production Environment
+# environment = "production"
+# db_instance_class = "db.r6g.2xlarge"
+# redis_node_type = "cache.r6g.large"
+# db_multi_az = true
+# db_backup_retention_period = 30
+# enable_cross_region_backup = true
+# enable_config = true
+# enable_security_hub = true
+# cluster_endpoint_public_access_cidrs = ["10.0.0.0/8", "172.16.0.0/12"] # Restrict public access

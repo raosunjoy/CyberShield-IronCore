@@ -86,26 +86,26 @@ export default function HomePage() {
   };
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 relative overflow-hidden'>
-      {/* Enhanced Background Effects */}
+    <div className='min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800'>
+      {/* Background Effects */}
       <div className='absolute inset-0 opacity-20 bg-blue-500' />
       <div className='absolute top-0 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-blue-500 rounded-full opacity-10 blur-3xl animate-pulse' />
       <div className='absolute bottom-0 right-0 w-64 h-64 bg-yellow-500 rounded-full opacity-5 blur-3xl' />
       <div className='absolute top-1/2 left-0 w-48 h-48 bg-red-500 rounded-full opacity-5 blur-3xl' />
 
-      {/* Professional Container - FULL WIDTH CENTERED */}
-      <div className='relative z-10 min-h-screen'>
-        <div className='container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl'>
+      {/* PROPERLY CENTERED CONTENT */}
+      <div className='relative z-10 min-h-screen flex flex-col'>
+        <div className='w-full max-w-7xl mx-auto px-8 py-8 flex-1'>
           <motion.div
             variants={containerVariants}
             initial='hidden'
             animate='visible'
-            className='py-8 space-y-16'
+            className='space-y-16'
           >
-            {/* Professional Header */}
+            {/* Header */}
             <motion.header
               variants={itemVariants}
-              className='text-center py-16 w-full'
+              className='text-center w-full py-16'
             >
               {/* Arc Reactor Center Piece */}
               <div className='flex justify-center mb-12 relative'>
@@ -117,19 +117,19 @@ export default function HomePage() {
                 />
               </div>
 
-              {/* Main Title */}
-              <div className='space-y-8 max-w-6xl mx-auto'>
-                <h1 className='text-6xl md:text-8xl lg:text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-yellow-400 to-blue-300 tracking-wider drop-shadow-2xl'>
+              {/* Main Title - CENTERED */}
+              <div className='space-y-8 w-full'>
+                <h1 className='text-5xl md:text-7xl lg:text-8xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-yellow-400 to-blue-300 tracking-wider'>
                   CYBERSHIELD
                 </h1>
-                <div className='flex items-center justify-center space-x-4 mb-6'>
-                  <div className='h-px bg-gradient-to-r from-transparent via-yellow-400 to-transparent flex-1 max-w-xs'></div>
-                  <h2 className='text-3xl md:text-5xl font-bold text-yellow-400 tracking-widest px-6'>
+                <div className='flex items-center justify-center space-x-4 w-full'>
+                  <div className='h-px bg-gradient-to-r from-transparent via-yellow-400 to-transparent w-32'></div>
+                  <h2 className='text-2xl md:text-4xl font-bold text-yellow-400 tracking-widest px-4'>
                     IRON CORE
                   </h2>
-                  <div className='h-px bg-gradient-to-r from-transparent via-yellow-400 to-transparent flex-1 max-w-xs'></div>
+                  <div className='h-px bg-gradient-to-r from-transparent via-yellow-400 to-transparent w-32'></div>
                 </div>
-                <p className='text-xl md:text-2xl text-blue-400 max-w-4xl mx-auto leading-relaxed'>
+                <p className='text-lg md:text-xl text-blue-400 text-center max-w-4xl mx-auto'>
                   Enterprise AI-Powered Cyber Risk Management Platform
                 </p>
                 <div className='flex items-center justify-center space-x-2 text-sm text-gray-400'>
@@ -144,12 +144,12 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* JARVIS Message Panel */}
+              {/* JARVIS Message Panel - CENTERED */}
               <motion.div
                 key={jarvisMessage}
                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                className='mt-12 mx-auto max-w-2xl'
+                className='mt-12 w-full max-w-2xl mx-auto'
               >
                 <div className='bg-gradient-to-r from-black/60 via-gray-900/80 to-black/60 border border-blue-400/40 rounded-2xl backdrop-blur-md p-6 shadow-2xl shadow-blue-400/20'>
                   <div className='flex items-start space-x-4'>
@@ -171,16 +171,16 @@ export default function HomePage() {
               </motion.div>
             </motion.header>
 
-            {/* System Statistics Dashboard */}
+            {/* System Statistics Dashboard - CENTERED */}
             <motion.section variants={itemVariants} className='w-full'>
-              <div className='text-center mb-12'>
+              <div className='text-center mb-12 w-full'>
                 <h2 className='text-3xl md:text-4xl font-bold text-white mb-4'>
                   System Status Overview
                 </h2>
                 <div className='h-1 w-32 bg-gradient-to-r from-blue-400 to-yellow-400 mx-auto rounded-full'></div>
               </div>
 
-              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full'>
                 {[
                   {
                     icon: Shield,
@@ -196,20 +196,21 @@ export default function HomePage() {
                     icon: Activity,
                     label: 'System Integrity',
                     value: `${systemStats.systemIntegrity.toFixed(1)}%`,
-                    color: 'text-arc-blue',
+                    color: 'text-blue-400',
                     bgGradient:
-                      'from-arc-blue/20 via-arc-blue/10 to-transparent',
-                    borderColor: 'border-arc-blue/50',
-                    glowColor: 'shadow-arc-blue/20',
+                      'from-blue-400/20 via-blue-400/10 to-transparent',
+                    borderColor: 'border-blue-400/50',
+                    glowColor: 'shadow-blue-400/20',
                   },
                   {
                     icon: Eye,
                     label: 'Active Scans',
                     value: systemStats.activeScans.toString(),
-                    color: 'text-gold',
-                    bgGradient: 'from-gold/20 via-gold/10 to-transparent',
-                    borderColor: 'border-gold/50',
-                    glowColor: 'shadow-gold/20',
+                    color: 'text-yellow-400',
+                    bgGradient:
+                      'from-yellow-400/20 via-yellow-400/10 to-transparent',
+                    borderColor: 'border-yellow-400/50',
+                    glowColor: 'shadow-yellow-400/20',
                   },
                   {
                     icon: Globe,
@@ -280,15 +281,15 @@ export default function HomePage() {
               </div>
             </motion.section>
 
-            {/* Threat Detection Command Center */}
-            <motion.section variants={itemVariants} className='mb-20'>
-              <div className='bg-gradient-to-br from-black/80 via-gray-900/60 to-black/80 border-2 border-arc-blue/30 rounded-3xl backdrop-blur-xl shadow-2xl shadow-arc-blue/10 overflow-hidden'>
+            {/* Threat Detection Command Center - CENTERED */}
+            <motion.section variants={itemVariants} className='mb-20 w-full'>
+              <div className='bg-gradient-to-br from-black/80 via-gray-900/60 to-black/80 border-2 border-blue-400/30 rounded-3xl backdrop-blur-xl shadow-2xl shadow-blue-400/10 overflow-hidden'>
                 {/* Header */}
-                <div className='bg-gradient-to-r from-arc-blue/20 via-transparent to-red-ironman/20 p-8 border-b border-arc-blue/30'>
+                <div className='bg-gradient-to-r from-blue-400/20 via-transparent to-red-500/20 p-8 border-b border-blue-400/30'>
                   <div className='flex items-center justify-between'>
                     <div className='flex items-center space-x-4'>
-                      <div className='p-4 bg-black/60 rounded-2xl border border-arc-blue/50'>
-                        <Target className='w-8 h-8 text-arc-blue' />
+                      <div className='p-4 bg-black/60 rounded-2xl border border-blue-400/50'>
+                        <Target className='w-8 h-8 text-blue-400' />
                       </div>
                       <div>
                         <h3 className='text-3xl font-display font-bold text-white mb-1'>
@@ -331,7 +332,7 @@ export default function HomePage() {
                           whileHover={{ scale: 1.02, y: -2 }}
                           className='group relative'
                         >
-                          <div className='bg-gradient-to-r from-black/60 via-gray-900/40 to-black/60 border-2 border-gray-700/50 rounded-2xl p-6 hover:border-arc-blue/50 transition-all duration-300 backdrop-blur-sm'>
+                          <div className='bg-gradient-to-r from-black/60 via-gray-900/40 to-black/60 border-2 border-gray-700/50 rounded-2xl p-6 hover:border-blue-400/50 transition-all duration-300 backdrop-blur-sm'>
                             <div className='flex items-center justify-between'>
                               <div className='flex items-center space-x-6'>
                                 {/* Threat Indicator */}
@@ -359,14 +360,16 @@ export default function HomePage() {
                                   </div>
                                   <div className='flex items-center space-x-4 text-sm'>
                                     <span className='text-gray-400 font-mono'>
-                                      <span className='text-arc-blue'>
+                                      <span className='text-blue-400'>
                                         SOURCE:
                                       </span>{' '}
                                       {threat.source}
                                     </span>
                                     <span className='text-gray-600'>•</span>
                                     <span className='text-gray-400 font-mono'>
-                                      <span className='text-gold'>TIME:</span>{' '}
+                                      <span className='text-yellow-400'>
+                                        TIME:
+                                      </span>{' '}
                                       {threat.timestamp.toLocaleTimeString()}
                                     </span>
                                     <span className='text-gray-600'>•</span>
@@ -425,47 +428,47 @@ export default function HomePage() {
               </div>
             </motion.section>
 
-            {/* Technology Stack */}
-            <motion.section variants={itemVariants} className='mb-20'>
-              <div className='text-center mb-16'>
-                <h2 className='text-4xl md:text-5xl font-display font-bold text-gold mb-6'>
+            {/* Technology Stack - CENTERED */}
+            <motion.section variants={itemVariants} className='mb-20 w-full'>
+              <div className='text-center mb-16 w-full'>
+                <h2 className='text-4xl md:text-5xl font-bold text-yellow-400 mb-6'>
                   Powered by Iron Man Technology
                 </h2>
                 <p className='text-xl text-gray-300 max-w-3xl mx-auto'>
                   Enterprise-grade cybersecurity with the innovation of Stark
                   Industries
                 </p>
-                <div className='h-1 w-40 bg-gradient-to-r from-gold to-arc-blue mx-auto mt-6 rounded-full'></div>
+                <div className='h-1 w-40 bg-gradient-to-r from-yellow-400 to-blue-400 mx-auto mt-6 rounded-full'></div>
               </div>
 
-              <div className='grid grid-cols-1 lg:grid-cols-3 gap-12'>
+              <div className='grid grid-cols-1 lg:grid-cols-3 gap-12 w-full'>
                 {[
                   {
                     icon: Cpu,
                     title: 'JARVIS AI Core',
                     description:
                       'Advanced artificial intelligence for real-time threat analysis and automated security response',
-                    color: 'text-arc-blue',
-                    bgGradient: 'from-arc-blue/20 to-arc-blue/5',
-                    borderColor: 'border-arc-blue/50',
+                    color: 'text-blue-400',
+                    bgGradient: 'from-blue-400/20 to-blue-400/5',
+                    borderColor: 'border-blue-400/50',
                   },
                   {
                     icon: Database,
                     title: 'Arc Reactor Database',
                     description:
                       'High-performance data processing with enterprise encryption and quantum-resistant security',
-                    color: 'text-gold',
-                    bgGradient: 'from-gold/20 to-gold/5',
-                    borderColor: 'border-gold/50',
+                    color: 'text-yellow-400',
+                    bgGradient: 'from-yellow-400/20 to-yellow-400/5',
+                    borderColor: 'border-yellow-400/50',
                   },
                   {
                     icon: Zap,
                     title: 'Stark Industries Security',
                     description:
                       'Military-grade cybersecurity protocols with automated response and self-healing systems',
-                    color: 'text-red-ironman',
-                    bgGradient: 'from-red-ironman/20 to-red-ironman/5',
-                    borderColor: 'border-red-ironman/50',
+                    color: 'text-red-500',
+                    bgGradient: 'from-red-500/20 to-red-500/5',
+                    borderColor: 'border-red-500/50',
                   },
                 ].map((feature, index) => (
                   <motion.div
@@ -511,24 +514,24 @@ export default function HomePage() {
               </div>
             </motion.section>
 
-            {/* Iron Man Quote Footer */}
+            {/* Iron Man Quote Footer - CENTERED */}
             <motion.footer
               variants={itemVariants}
-              className='text-center py-16'
+              className='text-center py-16 w-full'
             >
-              <div className='max-w-4xl mx-auto'>
-                <div className='bg-gradient-to-r from-black/60 via-black/80 to-black/60 border-2 border-gold/40 rounded-3xl p-12 backdrop-blur-xl shadow-2xl shadow-gold/10'>
+              <div className='max-w-4xl mx-auto w-full'>
+                <div className='bg-gradient-to-r from-black/60 via-black/80 to-black/60 border-2 border-yellow-400/40 rounded-3xl p-12 backdrop-blur-xl shadow-2xl shadow-yellow-400/10'>
                   <div className='space-y-6'>
-                    <div className='w-16 h-16 bg-gradient-to-br from-gold to-gold-dark rounded-full flex items-center justify-center mx-auto mb-8'>
+                    <div className='w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-8'>
                       <span className='text-black text-2xl font-black'>TS</span>
                     </div>
 
-                    <blockquote className='text-3xl md:text-4xl font-display italic text-gold font-medium leading-relaxed'>
+                    <blockquote className='text-3xl md:text-4xl italic text-yellow-400 font-medium leading-relaxed'>
                       "I am Iron Man."
                     </blockquote>
 
                     <div className='space-y-2'>
-                      <p className='text-arc-blue text-lg font-semibold'>
+                      <p className='text-blue-400 text-lg font-semibold'>
                         Tony Stark
                       </p>
                       <p className='text-gray-400 text-sm font-mono'>
@@ -536,7 +539,7 @@ export default function HomePage() {
                       </p>
                     </div>
 
-                    <div className='h-px bg-gradient-to-r from-transparent via-gold to-transparent w-64 mx-auto'></div>
+                    <div className='h-px bg-gradient-to-r from-transparent via-yellow-400 to-transparent w-64 mx-auto'></div>
 
                     <p className='text-gray-500 text-sm font-mono'>
                       "All systems operational, Mr. Stark." - JARVIS

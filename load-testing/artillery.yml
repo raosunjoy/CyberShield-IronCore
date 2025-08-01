@@ -1,0 +1,183 @@
+# CyberShield-IronCore Load Testing Configuration
+# Target: 1M requests/second capability validation
+# Enterprise-grade performance testing for $1B acquisition readiness
+
+config:
+  target: 'http://localhost:8000'
+  phases:
+    # Warm-up phase
+    - duration: 60
+      arrivalRate: 100
+      name: "Warm-up: Basic load"
+    
+    # Gradual ramp-up
+    - duration: 300
+      arrivalRate: 1000
+      rampTo: 10000
+      name: "Ramp-up: 1K to 10K RPS"
+    
+    # High load sustained
+    - duration: 600
+      arrivalRate: 50000
+      name: "Sustained: 50K RPS"
+    
+    # Peak performance test
+    - duration: 300
+      arrivalRate: 100000
+      rampTo: 500000
+      name: "Peak: 100K to 500K RPS"
+    
+    # Ultimate stress test
+    - duration: 180
+      arrivalRate: 1000000
+      name: "Ultimate: 1M RPS target"
+    
+    # Cool-down
+    - duration: 120
+      arrivalRate: 1000
+      name: "Cool-down: Recovery test"
+
+  defaults:
+    headers:
+      'Content-Type': 'application/json'
+      'User-Agent': 'CyberShield-LoadTest/1.0'
+      'X-Load-Test': 'true'
+  
+  # Connection pooling for high performance
+  http:
+    pool: 50
+    timeout: 10
+    maxSockets: 1000
+
+  # Metrics and reporting
+  plugins:
+    metrics-by-endpoint: {}
+    publish-metrics:
+      - type: datadog
+        tags:
+          - "service:cybershield"
+          - "environment:load-test"
+    ensure:
+      thresholds:
+        - http.response_time.p95: 100  # 95th percentile < 100ms
+        - http.response_time.p99: 500  # 99th percentile < 500ms
+        - http.codes.200: 95          # 95% success rate minimum
+        - vusers.failed: 5            # Max 5% failed users
+
+scenarios:
+  # Authentication flow test
+  - name: "User Authentication"
+    weight: 15
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "loadtest@cybershield.com"
+            password: "LoadTest123!"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      - think: 1
+      - get:
+          url: "/api/auth/profile"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+  # Threat detection API load
+  - name: "Threat Detection API"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/threats/detect"
+          json:
+            event_type: "network_anomaly"
+            source_ip: "{{ $randomString(15) }}"
+            destination_ip: "192.168.1.{{ $randomInt(1, 254) }}"
+            timestamp: "{{ $isoTimestamp() }}"
+            risk_score: "{{ $randomInt(1, 100) }}"
+            payload_size: "{{ $randomInt(100, 10000) }}"
+            protocol: "{{ $pick(['TCP', 'UDP', 'ICMP']) }}"
+            severity: "{{ $pick(['low', 'medium', 'high', 'critical']) }}"
+          expect:
+            - statusCode: 200
+            - hasProperty: "threat_id"
+            - hasProperty: "risk_assessment"
+
+  # AI Analysis endpoint stress test
+  - name: "AI Analysis Engine"
+    weight: 25
+    flow:
+      - post:
+          url: "/api/ai/analyze"
+          json:
+            data_type: "{{ $pick(['network', 'system', 'email']) }}"
+            features:
+              - name: "bytes_sent"
+                value: "{{ $randomInt(1000, 1000000) }}"
+              - name: "connection_count"
+                value: "{{ $randomInt(1, 100) }}"
+              - name: "failed_logins"
+                value: "{{ $randomInt(0, 50) }}"
+              - name: "suspicious_processes"
+                value: "{{ $randomInt(0, 10) }}"
+            context:
+              asset_criticality: "{{ $randomFloat(0, 1) }}"
+              user_privilege: "{{ $randomFloat(0, 1) }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: "anomaly_score"
+            - hasProperty: "risk_score"
+            - hasProperty: "classification"
+
+  # Real-time dashboard data
+  - name: "Dashboard Data Feed"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/dashboard/metrics"
+          expect:
+            - statusCode: 200
+            - hasProperty: "threat_count"
+            - hasProperty: "system_health"
+      - think: 0.5
+      - get:
+          url: "/api/dashboard/threats/recent"
+          expect:
+            - statusCode: 200
+            - contentType: json
+      - think: 0.5
+      - get:
+          url: "/api/dashboard/analytics"
+          expect:
+            - statusCode: 200
+
+  # WebSocket connection simulation
+  - name: "WebSocket Connections"
+    weight: 10
+    engine: ws
+    flow:
+      - connect:
+          url: "ws://localhost:8000/ws"
+      - send:
+          payload: |
+            {
+              "type": "client_connect",
+              "timestamp": "{{ $isoTimestamp() }}",
+              "data": {
+                "client_type": "load_test",
+                "session_id": "{{ $randomString(20) }}"
+              }
+            }
+      - think: "{{ $randomInt(1, 5) }}"
+      - send:
+          payload: |
+            {
+              "type": "heartbeat",
+              "timestamp": "{{ $isoTimestamp() }}",
+              "data": {}
+            }
+      - think: "{{ $randomInt(2, 10) }}"
+
+# Custom functions for realistic data generation
+processor: "./load-testing/data-generator.js"

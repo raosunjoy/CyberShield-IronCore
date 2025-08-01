@@ -43,7 +43,7 @@
     "no-throw-literal": "error",
     "no-await-in-loop": "warn",
     "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": "error"
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
   },
   "overrides": [
     {

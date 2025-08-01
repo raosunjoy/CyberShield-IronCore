@@ -86,235 +86,463 @@ export default function HomePage() {
   };
 
   return (
-    <div className='min-h-screen bg-jarvis-background relative overflow-hidden'>
-      {/* Background Effects */}
-      <div className='absolute inset-0 bg-cyber-grid opacity-10' />
-      <div className='absolute top-0 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-arc-blue rounded-full opacity-5 blur-3xl' />
+    <div className='min-h-screen bg-gradient-to-br from-jarvis-background via-gray-900 to-black relative overflow-hidden'>
+      {/* Enhanced Background Effects */}
+      <div className='absolute inset-0 bg-cyber-grid opacity-20' />
+      <div className='absolute top-0 left-1/2 transform -translate-x-1/2 w-[800px] h-[800px] bg-arc-blue rounded-full opacity-10 blur-3xl animate-pulse' />
+      <div className='absolute bottom-0 right-0 w-[600px] h-[600px] bg-gold rounded-full opacity-5 blur-3xl' />
+      <div className='absolute top-1/2 left-0 w-[400px] h-[400px] bg-red-ironman rounded-full opacity-5 blur-3xl' />
 
-      {/* Main Content */}
-      <motion.div
-        variants={containerVariants}
-        initial='hidden'
-        animate='visible'
-        className='relative z-10 container mx-auto px-6 py-12'
-      >
-        {/* Header */}
-        <motion.div variants={itemVariants} className='text-center mb-16'>
-          <div className='flex items-center justify-center mb-8'>
-            <MainReactor
-              powerLevel={systemStats.systemIntegrity}
-              status='online'
-              animated={true}
-            />
-          </div>
-
-          <h1 className='text-5xl md:text-7xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-arc-blue via-gold to-arc-blue-light mb-6'>
-            CYBERSHIELD
-          </h1>
-          <h2 className='text-2xl md:text-3xl font-display font-medium text-gold mb-4'>
-            IRON CORE
-          </h2>
-          <p className='text-lg text-arc-blue max-w-2xl mx-auto font-mono'>
-            Enterprise AI-Powered Cyber Risk Management Platform
-          </p>
-
-          {/* JARVIS Message */}
-          <motion.div
-            key={jarvisMessage}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className='mt-8 p-4 bg-black/50 border border-arc-blue/30 rounded-lg backdrop-blur-sm max-w-lg mx-auto'
-          >
-            <p className='text-arc-blue font-mono text-sm italic'>
-              "{jarvisMessage}"
-            </p>
-            <p className='text-gold text-xs mt-1'>- JARVIS</p>
-          </motion.div>
-        </motion.div>
-
-        {/* System Stats Grid */}
+      {/* Professional Container */}
+      <div className='relative z-10 min-h-screen flex flex-col'>
+        {/* Header Section */}
         <motion.div
-          variants={itemVariants}
-          className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16'
+          variants={containerVariants}
+          initial='hidden'
+          animate='visible'
+          className='flex-1 max-w-7xl mx-auto w-full px-6 py-8'
         >
-          {[
-            {
-              icon: Shield,
-              label: 'Threats Blocked',
-              value: systemStats.threatsBlocked.toLocaleString(),
-              color: 'text-green-400',
-              bgColor: 'bg-green-400/10',
-              borderColor: 'border-green-400/30',
-            },
-            {
-              icon: Activity,
-              label: 'System Integrity',
-              value: `${systemStats.systemIntegrity.toFixed(1)}%`,
-              color: 'text-arc-blue',
-              bgColor: 'bg-arc-blue/10',
-              borderColor: 'border-arc-blue/30',
-            },
-            {
-              icon: Eye,
-              label: 'Active Scans',
-              value: systemStats.activeScans.toString(),
-              color: 'text-gold',
-              bgColor: 'bg-gold/10',
-              borderColor: 'border-gold/30',
-            },
-            {
-              icon: Globe,
-              label: 'Network Health',
-              value: `${systemStats.networkHealth.toFixed(1)}%`,
-              color: 'text-green-400',
-              bgColor: 'bg-green-400/10',
-              borderColor: 'border-green-400/30',
-            },
-          ].map(stat => (
+          {/* Professional Header */}
+          <motion.header
+            variants={itemVariants}
+            className='text-center mb-20 relative'
+          >
+            {/* Arc Reactor Center Piece */}
+            <div className='flex justify-center mb-12 relative'>
+              <div className='absolute inset-0 bg-gradient-to-r from-transparent via-arc-blue/20 to-transparent blur-xl'></div>
+              <MainReactor
+                powerLevel={systemStats.systemIntegrity}
+                status='online'
+                animated={true}
+              />
+            </div>
+
+            {/* Main Title */}
+            <div className='space-y-6'>
+              <h1 className='text-6xl md:text-8xl lg:text-9xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-arc-blue via-gold to-arc-blue-light mb-4 tracking-wider drop-shadow-2xl'>
+                CYBERSHIELD
+              </h1>
+              <div className='flex items-center justify-center space-x-4 mb-6'>
+                <div className='h-px bg-gradient-to-r from-transparent via-gold to-transparent flex-1 max-w-xs'></div>
+                <h2 className='text-3xl md:text-5xl font-display font-bold text-gold tracking-widest px-6'>
+                  IRON CORE
+                </h2>
+                <div className='h-px bg-gradient-to-r from-transparent via-gold to-transparent flex-1 max-w-xs'></div>
+              </div>
+              <p className='text-xl md:text-2xl text-arc-blue max-w-4xl mx-auto font-mono leading-relaxed'>
+                Enterprise AI-Powered Cyber Risk Management Platform
+              </p>
+              <div className='flex items-center justify-center space-x-2 text-sm text-gray-400 font-mono'>
+                <span className='w-2 h-2 bg-green-400 rounded-full animate-pulse'></span>
+                <span>REAL-TIME PROTECTION</span>
+                <span className='text-gray-600'>•</span>
+                <span className='w-2 h-2 bg-arc-blue rounded-full animate-pulse'></span>
+                <span>AI-POWERED DETECTION</span>
+                <span className='text-gray-600'>•</span>
+                <span className='w-2 h-2 bg-gold rounded-full animate-pulse'></span>
+                <span>ENTERPRISE READY</span>
+              </div>
+            </div>
+
+            {/* JARVIS Message Panel */}
             <motion.div
-              key={stat.label}
-              whileHover={{ scale: 1.05, y: -5 }}
-              className={`p-6 bg-black/60 border ${stat.borderColor} rounded-lg backdrop-blur-sm ${stat.bgColor} transition-all duration-300`}
+              key={jarvisMessage}
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              className='mt-12 mx-auto max-w-2xl'
             >
-              <div className='flex items-center justify-between mb-4'>
-                <stat.icon className={`w-8 h-8 ${stat.color}`} />
-                <ArcReactor size='xs' status='online' glowIntensity='low' />
-              </div>
-              <div className={`text-3xl font-bold ${stat.color} mb-2`}>
-                {stat.value}
-              </div>
-              <div className='text-gray-400 text-sm font-mono'>
-                {stat.label}
+              <div className='bg-gradient-to-r from-black/60 via-black/80 to-black/60 border border-arc-blue/40 rounded-2xl backdrop-blur-md p-6 shadow-2xl shadow-arc-blue/20'>
+                <div className='flex items-start space-x-4'>
+                  <div className='flex-shrink-0'>
+                    <div className='w-10 h-10 bg-gradient-to-br from-arc-blue to-arc-blue-dark rounded-full flex items-center justify-center'>
+                      <span className='text-white text-sm font-bold'>J</span>
+                    </div>
+                  </div>
+                  <div className='flex-1'>
+                    <p className='text-arc-blue font-mono text-lg leading-relaxed italic'>
+                      "{jarvisMessage}"
+                    </p>
+                    <p className='text-gold text-sm mt-2 font-semibold'>
+                      - JARVIS AI Assistant
+                    </p>
+                  </div>
+                </div>
               </div>
             </motion.div>
-          ))}
-        </motion.div>
+          </motion.header>
 
-        {/* Threat Detection Panel */}
-        <motion.div variants={itemVariants} className='mb-16'>
-          <div className='bg-black/60 border border-arc-blue/30 rounded-lg p-6 backdrop-blur-sm'>
-            <div className='flex items-center justify-between mb-6'>
-              <h3 className='text-2xl font-display font-bold text-arc-blue flex items-center'>
-                <Target className='w-6 h-6 mr-3' />
-                Real-Time Threat Detection
-              </h3>
-              <div className='flex space-x-2'>
-                <ArcReactor size='sm' status='online' />
-                <span className='text-green-400 font-mono text-sm self-center'>
-                  ACTIVE
-                </span>
+          {/* System Statistics Dashboard */}
+          <motion.section variants={itemVariants} className='mb-20'>
+            <div className='text-center mb-12'>
+              <h2 className='text-3xl md:text-4xl font-display font-bold text-white mb-4'>
+                System Status Overview
+              </h2>
+              <div className='h-1 w-32 bg-gradient-to-r from-arc-blue to-gold mx-auto rounded-full'></div>
+            </div>
+
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
+              {[
+                {
+                  icon: Shield,
+                  label: 'Threats Blocked',
+                  value: systemStats.threatsBlocked.toLocaleString(),
+                  color: 'text-green-400',
+                  bgGradient:
+                    'from-green-500/20 via-green-600/10 to-transparent',
+                  borderColor: 'border-green-400/50',
+                  glowColor: 'shadow-green-400/20',
+                },
+                {
+                  icon: Activity,
+                  label: 'System Integrity',
+                  value: `${systemStats.systemIntegrity.toFixed(1)}%`,
+                  color: 'text-arc-blue',
+                  bgGradient: 'from-arc-blue/20 via-arc-blue/10 to-transparent',
+                  borderColor: 'border-arc-blue/50',
+                  glowColor: 'shadow-arc-blue/20',
+                },
+                {
+                  icon: Eye,
+                  label: 'Active Scans',
+                  value: systemStats.activeScans.toString(),
+                  color: 'text-gold',
+                  bgGradient: 'from-gold/20 via-gold/10 to-transparent',
+                  borderColor: 'border-gold/50',
+                  glowColor: 'shadow-gold/20',
+                },
+                {
+                  icon: Globe,
+                  label: 'Network Health',
+                  value: `${systemStats.networkHealth.toFixed(1)}%`,
+                  color: 'text-green-400',
+                  bgGradient:
+                    'from-green-500/20 via-green-600/10 to-transparent',
+                  borderColor: 'border-green-400/50',
+                  glowColor: 'shadow-green-400/20',
+                },
+              ].map((stat, index) => (
+                <motion.div
+                  key={stat.label}
+                  whileHover={{ scale: 1.05, y: -10 }}
+                  whileTap={{ scale: 0.98 }}
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                  className={`relative group cursor-pointer`}
+                >
+                  <div
+                    className={`h-full p-8 bg-gradient-to-br ${stat.bgGradient} border-2 ${stat.borderColor} rounded-2xl backdrop-blur-xl transition-all duration-500 hover:border-opacity-100 shadow-2xl ${stat.glowColor} hover:shadow-3xl`}
+                  >
+                    <div className='flex items-center justify-between mb-6'>
+                      <div
+                        className={`p-3 rounded-xl bg-black/40 border ${stat.borderColor}`}
+                      >
+                        <stat.icon className={`w-8 h-8 ${stat.color}`} />
+                      </div>
+                      <ArcReactor
+                        size='xs'
+                        status='online'
+                        glowIntensity='medium'
+                      />
+                    </div>
+
+                    <div className='space-y-2'>
+                      <div
+                        className={`text-4xl md:text-5xl font-black ${stat.color} font-mono tracking-wider`}
+                      >
+                        {stat.value}
+                      </div>
+                      <div className='text-gray-300 text-sm font-medium uppercase tracking-wide'>
+                        {stat.label}
+                      </div>
+                    </div>
+
+                    {/* Animated progress bar for percentage values */}
+                    {stat.value.includes('%') && (
+                      <div className='mt-4'>
+                        <div className='h-2 bg-black/40 rounded-full overflow-hidden'>
+                          <motion.div
+                            className={`h-full bg-gradient-to-r ${stat.bgGradient} rounded-full`}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${parseFloat(stat.value)}%` }}
+                            transition={{
+                              delay: 0.5 + index * 0.1,
+                              duration: 1,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.section>
+
+          {/* Threat Detection Command Center */}
+          <motion.section variants={itemVariants} className='mb-20'>
+            <div className='bg-gradient-to-br from-black/80 via-gray-900/60 to-black/80 border-2 border-arc-blue/30 rounded-3xl backdrop-blur-xl shadow-2xl shadow-arc-blue/10 overflow-hidden'>
+              {/* Header */}
+              <div className='bg-gradient-to-r from-arc-blue/20 via-transparent to-red-ironman/20 p-8 border-b border-arc-blue/30'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center space-x-4'>
+                    <div className='p-4 bg-black/60 rounded-2xl border border-arc-blue/50'>
+                      <Target className='w-8 h-8 text-arc-blue' />
+                    </div>
+                    <div>
+                      <h3 className='text-3xl font-display font-bold text-white mb-1'>
+                        Real-Time Threat Detection
+                      </h3>
+                      <p className='text-gray-400 font-mono text-sm'>
+                        AI-Powered Security Monitoring
+                      </p>
+                    </div>
+                  </div>
+                  <div className='flex items-center space-x-4'>
+                    <ArcReactor
+                      size='sm'
+                      status='online'
+                      glowIntensity='high'
+                    />
+                    <div className='text-right'>
+                      <span className='block text-green-400 font-bold text-lg'>
+                        ACTIVE
+                      </span>
+                      <span className='text-xs text-gray-400 font-mono'>
+                        24/7 MONITORING
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Threats List */}
+              <div className='p-8'>
+                <div className='space-y-6'>
+                  {threatData.map((threat, index) => {
+                    const threatLevel = getThreatLevel(threat.severity);
+                    return (
+                      <motion.div
+                        key={threat.id}
+                        initial={{ opacity: 0, x: -30, scale: 0.95 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        transition={{ delay: index * 0.1, duration: 0.5 }}
+                        whileHover={{ scale: 1.02, y: -2 }}
+                        className='group relative'
+                      >
+                        <div className='bg-gradient-to-r from-black/60 via-gray-900/40 to-black/60 border-2 border-gray-700/50 rounded-2xl p-6 hover:border-arc-blue/50 transition-all duration-300 backdrop-blur-sm'>
+                          <div className='flex items-center justify-between'>
+                            <div className='flex items-center space-x-6'>
+                              {/* Threat Indicator */}
+                              <div className='relative'>
+                                <div
+                                  className='w-6 h-6 rounded-full animate-pulse'
+                                  style={{
+                                    backgroundColor: threatLevel.color,
+                                    boxShadow: `0 0 20px ${threatLevel.color}, inset 0 0 10px ${threatLevel.color}`,
+                                  }}
+                                />
+                                <div
+                                  className='absolute inset-0 rounded-full animate-ping'
+                                  style={{
+                                    backgroundColor: threatLevel.color,
+                                    opacity: 0.3,
+                                  }}
+                                />
+                              </div>
+
+                              {/* Threat Details */}
+                              <div className='space-y-2'>
+                                <div className='text-white font-bold text-xl'>
+                                  {threat.type}
+                                </div>
+                                <div className='flex items-center space-x-4 text-sm'>
+                                  <span className='text-gray-400 font-mono'>
+                                    <span className='text-arc-blue'>
+                                      SOURCE:
+                                    </span>{' '}
+                                    {threat.source}
+                                  </span>
+                                  <span className='text-gray-600'>•</span>
+                                  <span className='text-gray-400 font-mono'>
+                                    <span className='text-gold'>TIME:</span>{' '}
+                                    {threat.timestamp.toLocaleTimeString()}
+                                  </span>
+                                  <span className='text-gray-600'>•</span>
+                                  <span className='text-gray-400 font-mono'>
+                                    <span className='text-green-400'>
+                                      STATUS:
+                                    </span>{' '}
+                                    {threat.status.toUpperCase()}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Threat Level Badge */}
+                            <div className='text-right space-y-2'>
+                              <div
+                                className='inline-block px-4 py-2 rounded-xl font-bold text-sm uppercase border-2 backdrop-blur-sm'
+                                style={{
+                                  color: threatLevel.color,
+                                  borderColor: threatLevel.color,
+                                  backgroundColor: `${threatLevel.color}20`,
+                                  boxShadow: `0 0 15px ${threatLevel.color}40`,
+                                }}
+                              >
+                                {threatLevel.level}
+                              </div>
+                              <div className='text-gray-400 text-xs font-mono'>
+                                RISK SCORE: {threat.severity}/100
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Threat Progress Bar */}
+                          <div className='mt-4'>
+                            <div className='h-2 bg-black/60 rounded-full overflow-hidden'>
+                              <motion.div
+                                className='h-full rounded-full'
+                                style={{
+                                  background: `linear-gradient(90deg, ${threatLevel.color}40, ${threatLevel.color})`,
+                                }}
+                                initial={{ width: 0 }}
+                                animate={{ width: `${threat.severity}%` }}
+                                transition={{
+                                  delay: 0.5 + index * 0.1,
+                                  duration: 1,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
+          </motion.section>
 
-            <div className='space-y-4'>
-              {threatData.map(threat => {
-                const threatLevel = getThreatLevel(threat.severity);
-                return (
-                  <motion.div
-                    key={threat.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className='flex items-center justify-between p-4 bg-black/40 border border-gray-700 rounded-lg hover:border-arc-blue/50 transition-colors'
-                  >
-                    <div className='flex items-center space-x-4'>
-                      <div
-                        className='w-3 h-3 rounded-full'
-                        style={{
-                          backgroundColor: threatLevel.color,
-                          boxShadow: `0 0 10px ${threatLevel.color}`,
-                        }}
-                      />
-                      <div>
-                        <div className='text-white font-semibold'>
-                          {threat.type}
-                        </div>
-                        <div className='text-gray-400 text-sm font-mono'>
-                          {threat.source} •{' '}
-                          {threat.timestamp.toLocaleTimeString()}
-                        </div>
-                      </div>
-                    </div>
-                    <div className='text-right'>
-                      <div
-                        className='text-sm font-bold uppercase'
-                        style={{ color: threatLevel.color }}
-                      >
-                        {threatLevel.level}
-                      </div>
-                      <div className='text-gray-400 text-xs'>
-                        Risk: {threat.severity}/100
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
+          {/* Technology Stack */}
+          <motion.section variants={itemVariants} className='mb-20'>
+            <div className='text-center mb-16'>
+              <h2 className='text-4xl md:text-5xl font-display font-bold text-gold mb-6'>
+                Powered by Iron Man Technology
+              </h2>
+              <p className='text-xl text-gray-300 max-w-3xl mx-auto'>
+                Enterprise-grade cybersecurity with the innovation of Stark
+                Industries
+              </p>
+              <div className='h-1 w-40 bg-gradient-to-r from-gold to-arc-blue mx-auto mt-6 rounded-full'></div>
             </div>
-          </div>
-        </motion.div>
 
-        {/* System Architecture */}
-        <motion.div variants={itemVariants} className='text-center'>
-          <h3 className='text-3xl font-display font-bold text-gold mb-8'>
-            Powered by Iron Man Technology
-          </h3>
+            <div className='grid grid-cols-1 lg:grid-cols-3 gap-12'>
+              {[
+                {
+                  icon: Cpu,
+                  title: 'JARVIS AI Core',
+                  description:
+                    'Advanced artificial intelligence for real-time threat analysis and automated security response',
+                  color: 'text-arc-blue',
+                  bgGradient: 'from-arc-blue/20 to-arc-blue/5',
+                  borderColor: 'border-arc-blue/50',
+                },
+                {
+                  icon: Database,
+                  title: 'Arc Reactor Database',
+                  description:
+                    'High-performance data processing with enterprise encryption and quantum-resistant security',
+                  color: 'text-gold',
+                  bgGradient: 'from-gold/20 to-gold/5',
+                  borderColor: 'border-gold/50',
+                },
+                {
+                  icon: Zap,
+                  title: 'Stark Industries Security',
+                  description:
+                    'Military-grade cybersecurity protocols with automated response and self-healing systems',
+                  color: 'text-red-ironman',
+                  bgGradient: 'from-red-ironman/20 to-red-ironman/5',
+                  borderColor: 'border-red-ironman/50',
+                },
+              ].map((feature, index) => (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.2, duration: 0.6 }}
+                  whileHover={{ scale: 1.05, y: -10 }}
+                  className='group relative h-full'
+                >
+                  <div
+                    className={`h-full p-8 bg-gradient-to-br ${feature.bgGradient} border-2 ${feature.borderColor} rounded-3xl backdrop-blur-xl transition-all duration-500 hover:shadow-2xl hover:shadow-current/20`}
+                  >
+                    <div className='text-center space-y-6'>
+                      <div
+                        className={`inline-flex p-6 bg-black/40 rounded-2xl border ${feature.borderColor} group-hover:scale-110 transition-transform duration-300`}
+                      >
+                        <feature.icon
+                          className={`w-16 h-16 ${feature.color}`}
+                        />
+                      </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-            {[
-              {
-                icon: Cpu,
-                title: 'JARVIS AI Core',
-                description:
-                  'Advanced artificial intelligence for real-time threat analysis',
-                color: 'text-arc-blue',
-              },
-              {
-                icon: Database,
-                title: 'Arc Reactor Database',
-                description:
-                  'High-performance data processing with enterprise encryption',
-                color: 'text-gold',
-              },
-              {
-                icon: Zap,
-                title: 'Stark Industries Security',
-                description:
-                  'Military-grade cybersecurity protocols and automated response',
-                color: 'text-red-ironman',
-              },
-            ].map(feature => (
-              <motion.div
-                key={feature.title}
-                whileHover={{ scale: 1.05 }}
-                className='p-6 bg-black/40 border border-gray-700 rounded-lg backdrop-blur-sm hover:border-arc-blue/50 transition-all duration-300'
-              >
-                <feature.icon
-                  className={`w-12 h-12 ${feature.color} mx-auto mb-4`}
-                />
-                <h4 className={`text-xl font-bold ${feature.color} mb-3`}>
-                  {feature.title}
-                </h4>
-                <p className='text-gray-400 text-sm leading-relaxed'>
-                  {feature.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
+                      <div>
+                        <h3
+                          className={`text-2xl font-display font-bold ${feature.color} mb-4`}
+                        >
+                          {feature.title}
+                        </h3>
+                        <p className='text-gray-300 leading-relaxed'>
+                          {feature.description}
+                        </p>
+                      </div>
 
-        {/* Iron Man Quote */}
-        <motion.div
-          variants={itemVariants}
-          className='text-center mt-16 p-6 bg-black/30 border border-gold/30 rounded-lg backdrop-blur-sm'
-        >
-          <p className='text-2xl font-display italic text-gold mb-2'>
-            "I am Iron Man."
-          </p>
-          <p className='text-arc-blue text-sm'>
-            - Tony Stark, Genius, Billionaire, Playboy, Philanthropist
-          </p>
+                      <div className='pt-4'>
+                        <div
+                          className={`h-1 w-16 bg-gradient-to-r ${feature.bgGradient} mx-auto rounded-full group-hover:w-24 transition-all duration-300`}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.section>
+
+          {/* Iron Man Quote Footer */}
+          <motion.footer variants={itemVariants} className='text-center py-16'>
+            <div className='max-w-4xl mx-auto'>
+              <div className='bg-gradient-to-r from-black/60 via-black/80 to-black/60 border-2 border-gold/40 rounded-3xl p-12 backdrop-blur-xl shadow-2xl shadow-gold/10'>
+                <div className='space-y-6'>
+                  <div className='w-16 h-16 bg-gradient-to-br from-gold to-gold-dark rounded-full flex items-center justify-center mx-auto mb-8'>
+                    <span className='text-black text-2xl font-black'>TS</span>
+                  </div>
+
+                  <blockquote className='text-3xl md:text-4xl font-display italic text-gold font-medium leading-relaxed'>
+                    "I am Iron Man."
+                  </blockquote>
+
+                  <div className='space-y-2'>
+                    <p className='text-arc-blue text-lg font-semibold'>
+                      Tony Stark
+                    </p>
+                    <p className='text-gray-400 text-sm font-mono'>
+                      Genius • Billionaire • Playboy • Philanthropist
+                    </p>
+                  </div>
+
+                  <div className='h-px bg-gradient-to-r from-transparent via-gold to-transparent w-64 mx-auto'></div>
+
+                  <p className='text-gray-500 text-sm font-mono'>
+                    "All systems operational, Mr. Stark." - JARVIS
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.footer>
         </motion.div>
-      </motion.div>
+      </div>
     </div>
   );
 }

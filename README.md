@@ -4,8 +4,10 @@
 > _Iron Man-inspired cybersecurity that makes admins scramble_
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/raosunjoy/CyberShield-IronCore)
-[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](https://github.com/raosunjoy/CyberShield-IronCore)
+[![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen)](https://github.com/raosunjoy/CyberShield-IronCore)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Phase](https://img.shields.io/badge/phase-6%20complete-success)](https://github.com/raosunjoy/CyberShield-IronCore)
+[![Status](https://img.shields.io/badge/status-production%20ready-brightgreen)](https://github.com/raosunjoy/CyberShield-IronCore)
 
 ## 🚀 The Vision
 

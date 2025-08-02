@@ -1,0 +1,219 @@
+# CyberShield-IronCore Production SSO Infrastructure
+# This docker-compose file sets up the real infrastructure for Enterprise SSO
+
+version: '3.8'
+
+services:
+  # Production PostgreSQL Cluster
+  postgres-primary:
+    image: postgres:15-alpine
+    container_name: cybershield-postgres-primary
+    environment:
+      POSTGRES_DB: cybershield_production
+      POSTGRES_USER: cybershield
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_REPLICATION_USER: replicator
+      POSTGRES_REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+    volumes:
+      - postgres_primary_data:/var/lib/postgresql/data
+      - ./production/sql/init-replication.sql:/docker-entrypoint-initdb.d/init-replication.sql
+    ports:
+      - "5432:5432"
+    command: |
+      postgres
+      -c wal_level=replica
+      -c max_wal_senders=3
+      -c max_replication_slots=3
+      -c hot_standby=on
+    networks:
+      - cybershield-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cybershield"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL Read Replica
+  postgres-replica:
+    image: postgres:15-alpine
+    container_name: cybershield-postgres-replica
+    environment:
+      POSTGRES_USER: cybershield
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGUSER: cybershield
+    volumes:
+      - postgres_replica_data:/var/lib/postgresql/data
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+    command: |
+      bash -c "
+      pg_basebackup -h postgres-primary -D /var/lib/postgresql/data -U replicator -v -P -R
+      postgres -c hot_standby=on
+      "
+    networks:
+      - cybershield-network
+
+  # Production Redis Cluster
+  redis-master:
+    image: redis:7-alpine
+    container_name: cybershield-redis-master
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes --save 60 1000
+    volumes:
+      - redis_master_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - cybershield-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  redis-sentinel:
+    image: redis:7-alpine
+    container_name: cybershield-redis-sentinel
+    command: redis-sentinel /etc/redis/sentinel.conf
+    volumes:
+      - ./production/redis/sentinel.conf:/etc/redis/sentinel.conf
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    networks:
+      - cybershield-network
+
+  # CyberShield Backend with Real SSO
+  cybershield-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    container_name: cybershield-backend
+    environment:
+      # Database Configuration
+      DATABASE_URL: postgresql+asyncpg://cybershield:${POSTGRES_PASSWORD}@postgres-primary:5432/cybershield_production
+      DATABASE_REPLICA_URL: postgresql+asyncpg://cybershield:${POSTGRES_PASSWORD}@postgres-replica:5432/cybershield_production
+      
+      # Redis Configuration
+      REDIS_HOST: redis-master
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      
+      # Active Directory Configuration
+      AD_SERVER: ${AD_SERVER}
+      AD_DOMAIN: ${AD_DOMAIN}
+      AD_SERVICE_ACCOUNT: ${AD_SERVICE_ACCOUNT}
+      AD_SERVICE_PASSWORD: ${AD_SERVICE_PASSWORD}
+      
+      # SAML Configuration
+      SAML_CERT_PATH: /etc/ssl/saml/cybershield.crt
+      SAML_KEY_PATH: /etc/ssl/saml/cybershield.key
+      SAML_ISSUER: https://cybershield-ironcore.com
+      
+      # External Services
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY}
+      
+      # Security
+      JWT_SECRET: ${JWT_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      
+      # Environment
+      ENVIRONMENT: production
+      LOG_LEVEL: INFO
+    volumes:
+      - ./production/ssl/saml:/etc/ssl/saml:ro
+      - ./production/ssl/certs:/etc/ssl/certs:ro
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres-primary:
+        condition: service_healthy
+      redis-master:
+        condition: service_healthy
+    networks:
+      - cybershield-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # NGINX Load Balancer with SSL Termination
+  nginx:
+    image: nginx:alpine
+    container_name: cybershield-nginx
+    volumes:
+      - ./production/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./production/ssl/letsencrypt:/etc/letsencrypt:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - cybershield-backend
+    networks:
+      - cybershield-network
+
+  # Monitoring with Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: cybershield-prometheus
+    volumes:
+      - ./production/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - cybershield-network
+
+  # Log Aggregation with ELK Stack
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    container_name: cybershield-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - cybershield-network
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.8.0
+    container_name: cybershield-logstash
+    volumes:
+      - ./production/logstash/pipeline:/usr/share/logstash/pipeline:ro
+    depends_on:
+      - elasticsearch
+    networks:
+      - cybershield-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.8.0
+    container_name: cybershield-kibana
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - cybershield-network
+
+volumes:
+  postgres_primary_data:
+  postgres_replica_data:
+  redis_master_data:
+  prometheus_data:
+  elasticsearch_data:
+
+networks:
+  cybershield-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

@@ -189,6 +189,62 @@ class TenantPlanLimitError(TenantException):
         )
 
 
+# Authentication and authorization exceptions
+class AuthenticationError(CyberShieldException):
+    """Raised when authentication fails"""
+    
+    def __init__(
+        self,
+        message: str,
+        auth_method: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None
+    ):
+        self.auth_method = auth_method
+        super().__init__(
+            message=message,
+            error_code="AUTHENTICATION_FAILED",
+            details=details or {}
+        )
+
+
+class AuthorizationError(CyberShieldException):
+    """Raised when authorization fails"""
+    
+    def __init__(
+        self,
+        message: str,
+        resource: Optional[str] = None,
+        required_permission: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None
+    ):
+        self.resource = resource
+        self.required_permission = required_permission
+        super().__init__(
+            message=message,
+            error_code="AUTHORIZATION_FAILED",
+            details=details or {}
+        )
+
+
+class SecurityViolationError(CyberShieldException):
+    """Raised when security policies are violated"""
+    
+    def __init__(
+        self,
+        message: str,
+        violation_type: str,
+        severity: str = "medium",
+        details: Optional[Dict[str, Any]] = None
+    ):
+        self.violation_type = violation_type
+        self.severity = severity
+        super().__init__(
+            message=message,
+            error_code="SECURITY_VIOLATION",
+            details=details or {}
+        )
+
+
 # Compliance and regulation exceptions
 class ComplianceViolationError(CyberShieldException):
     """Raised when compliance requirements are violated"""

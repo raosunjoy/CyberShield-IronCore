@@ -1,0 +1,60 @@
+# CyberShield-IronCore Production Demo Infrastructure
+# Simplified version for demonstration with real Redis and PostgreSQL
+
+version: '3.8'
+
+services:
+  # Production PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: cybershield-postgres-demo
+    environment:
+      POSTGRES_DB: cybershield_production
+      POSTGRES_USER: cybershield
+      POSTGRES_PASSWORD: SecureProductionPassword2025!
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./production/sql:/docker-entrypoint-initdb.d
+    ports:
+      - "5433:5432"
+    networks:
+      - cybershield-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cybershield"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Production Redis
+  redis:
+    image: redis:7-alpine
+    container_name: cybershield-redis-demo
+    command: redis-server --requirepass SecureRedisPassword2025! --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6380:6379"
+    networks:
+      - cybershield-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: cybershield-prometheus-demo
+    ports:
+      - "9090:9090"
+    networks:
+      - cybershield-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  cybershield-network:
+    driver: bridge

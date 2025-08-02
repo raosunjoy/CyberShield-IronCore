@@ -85,7 +85,9 @@ describe('ThreatHeatmap', () => {
       height: 600,
     };
 
-    HTMLCanvasElement.prototype.getContext = jest.fn(() => mockCanvas.getContext()) as any;
+    HTMLCanvasElement.prototype.getContext = jest.fn(() =>
+      mockCanvas.getContext()
+    ) as any;
     HTMLCanvasElement.prototype.getBoundingClientRect = jest.fn(() => ({
       left: 0,
       top: 0,
@@ -95,11 +97,11 @@ describe('ThreatHeatmap', () => {
       y: 0,
       bottom: 600,
       right: 800,
-      toJSON: () => ({})
+      toJSON: () => ({}),
     })) as any;
 
     // Mock requestAnimationFrame
-    global.requestAnimationFrame = jest.fn((cb) => {
+    global.requestAnimationFrame = jest.fn(cb => {
       setTimeout(cb, 16);
       return 1;
     });
@@ -136,19 +138,27 @@ describe('ThreatHeatmap', () => {
     );
 
     expect(screen.getByText('THREAT STATISTICS')).toBeInTheDocument();
-    
+
     // Use more flexible text matching for elements with spans
-    expect(screen.getByText((_content, element) => {
-      return element?.textContent === `Total Threats: ${mockThreatData.length}`;
-    })).toBeInTheDocument();
-    
-    expect(screen.getByText((_content, element) => {
-      return element?.textContent === 'Critical: 1';
-    })).toBeInTheDocument();
-    
-    expect(screen.getByText((_content, element) => {
-      return element?.textContent === 'High: 1';
-    })).toBeInTheDocument();
+    expect(
+      screen.getByText((_content, element) => {
+        return (
+          element?.textContent === `Total Threats: ${mockThreatData.length}`
+        );
+      })
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText((_content, element) => {
+        return element?.textContent === 'Critical: 1';
+      })
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText((_content, element) => {
+        return element?.textContent === 'High: 1';
+      })
+    ).toBeInTheDocument();
   });
 
   it('displays severity legend', () => {
@@ -178,7 +188,7 @@ describe('ThreatHeatmap', () => {
 
     const canvas = container.querySelector('canvas');
     expect(canvas).toBeInTheDocument();
-    
+
     // Simulate mouse move over a threat location
     fireEvent.mouseMove(canvas!, {
       clientX: 400, // 50% of 800px width
@@ -187,20 +197,26 @@ describe('ThreatHeatmap', () => {
 
     await waitFor(() => {
       expect(screen.getByText('THREAT DETECTED: MALWARE')).toBeInTheDocument();
-      
+
       // Use flexible text matching for elements with spans
-      expect(screen.getByText((_content, element) => {
-        return element?.textContent === 'Risk Score: 85/100';
-      })).toBeInTheDocument();
-      
-      expect(screen.getByText((_content, element) => {
-        return element?.textContent === 'AI Confidence: 95%';
-      })).toBeInTheDocument();
-      
-      expect(screen.getByText((_content, element) => {
-        return element?.textContent === 'Severity: HIGH';
-      })).toBeInTheDocument();
-      
+      expect(
+        screen.getByText((_content, element) => {
+          return element?.textContent === 'Risk Score: 85/100';
+        })
+      ).toBeInTheDocument();
+
+      expect(
+        screen.getByText((_content, element) => {
+          return element?.textContent === 'AI Confidence: 95%';
+        })
+      ).toBeInTheDocument();
+
+      expect(
+        screen.getByText((_content, element) => {
+          return element?.textContent === 'Severity: HIGH';
+        })
+      ).toBeInTheDocument();
+
       expect(screen.getByText('Source: 192.168.1.100')).toBeInTheDocument();
     });
   });
@@ -217,7 +233,7 @@ describe('ThreatHeatmap', () => {
 
     const canvas = container.querySelector('canvas');
     expect(canvas).toBeInTheDocument();
-    
+
     // First hover to select the threat
     fireEvent.mouseMove(canvas!, {
       clientX: 400,
@@ -241,36 +257,44 @@ describe('ThreatHeatmap', () => {
     );
 
     // Calculate expected average: (85 + 95 + 65) / 3 = 81.67 -> rounded to 82
-    const avgRisk = Math.round(mockThreatData.reduce((sum, t) => sum + t.riskScore, 0) / mockThreatData.length);
-    
-    expect(screen.getByText((_content, element) => {
-      return element?.textContent === `Avg Risk: ${avgRisk}`;
-    })).toBeInTheDocument();
+    const avgRisk = Math.round(
+      mockThreatData.reduce((sum, t) => sum + t.riskScore, 0) /
+        mockThreatData.length
+    );
+
+    expect(
+      screen.getByText((_content, element) => {
+        return element?.textContent === `Avg Risk: ${avgRisk}`;
+      })
+    ).toBeInTheDocument();
   });
 
   it('handles empty threat data gracefully', () => {
-    render(
-      <ThreatHeatmap
-        threatData={[]}
-        onThreatClick={mockOnThreatClick}
-      />
-    );
+    render(<ThreatHeatmap threatData={[]} onThreatClick={mockOnThreatClick} />);
 
-    expect(screen.getByText((_content, element) => {
-      return element?.textContent === 'Total Threats: 0';
-    })).toBeInTheDocument();
-    
-    expect(screen.getByText((_content, element) => {
-      return element?.textContent === 'Critical: 0';
-    })).toBeInTheDocument();
-    
-    expect(screen.getByText((_content, element) => {
-      return element?.textContent === 'High: 0';
-    })).toBeInTheDocument();
-    
-    expect(screen.getByText((_content, element) => {
-      return element?.textContent === 'Avg Risk: 0';
-    })).toBeInTheDocument();
+    expect(
+      screen.getByText((_content, element) => {
+        return element?.textContent === 'Total Threats: 0';
+      })
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText((_content, element) => {
+        return element?.textContent === 'Critical: 0';
+      })
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText((_content, element) => {
+        return element?.textContent === 'High: 0';
+      })
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText((_content, element) => {
+        return element?.textContent === 'Avg Risk: 0';
+      })
+    ).toBeInTheDocument();
   });
 
   it('applies correct severity colors', () => {
@@ -329,17 +353,23 @@ describe('ThreatHeatmap', () => {
       />
     );
 
-    expect(screen.getByText((_content, element) => {
-      return element?.textContent === 'Total Threats: 4';
-    })).toBeInTheDocument();
-    
-    expect(screen.getByText((_content, element) => {
-      return element?.textContent === 'Critical: 1';
-    })).toBeInTheDocument();
-    
-    expect(screen.getByText((_content, element) => {
-      return element?.textContent === 'High: 1';
-    })).toBeInTheDocument();
+    expect(
+      screen.getByText((_content, element) => {
+        return element?.textContent === 'Total Threats: 4';
+      })
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText((_content, element) => {
+        return element?.textContent === 'Critical: 1';
+      })
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText((_content, element) => {
+        return element?.textContent === 'High: 1';
+      })
+    ).toBeInTheDocument();
     // Low severity threats are counted but not specifically displayed in this view
   });
 
@@ -355,7 +385,7 @@ describe('ThreatHeatmap', () => {
 
     const canvas = container.querySelector('canvas');
     expect(canvas).toBeInTheDocument();
-    
+
     // Simulate mouse move
     fireEvent.mouseMove(canvas!, {
       clientX: 400,
@@ -365,7 +395,7 @@ describe('ThreatHeatmap', () => {
     await waitFor(() => {
       const tooltipContent = screen.getByText('THREAT DETECTED: MALWARE');
       expect(tooltipContent).toBeInTheDocument();
-      
+
       // Find the actual tooltip container (parent with fixed positioning)
       const tooltip = tooltipContent.closest('[class*="fixed"]');
       expect(tooltip).toBeInTheDocument();

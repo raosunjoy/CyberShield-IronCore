@@ -85,7 +85,7 @@ describe('ThreatTimeline', () => {
   it('renders threat timeline with correct header information', () => {
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={mockEvents}
         onEventClick={mockOnEventClick}
       />
@@ -98,31 +98,37 @@ describe('ThreatTimeline', () => {
   it('displays timeline statistics correctly', () => {
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={mockEvents}
         onEventClick={mockOnEventClick}
       />
     );
 
-    expect(screen.getByText((_content, element) => {
-      return element?.textContent === `Total Events: ${mockEvents.length}`;
-    })).toBeInTheDocument();
-    
+    expect(
+      screen.getByText((_content, element) => {
+        return element?.textContent === `Total Events: ${mockEvents.length}`;
+      })
+    ).toBeInTheDocument();
+
     const aiEvents = mockEvents.filter(e => e.actor === 'AI').length;
-    expect(screen.getByText((_content, element) => {
-      return element?.textContent === `AI Decisions: ${aiEvents}`;
-    })).toBeInTheDocument();
-    
+    expect(
+      screen.getByText((_content, element) => {
+        return element?.textContent === `AI Decisions: ${aiEvents}`;
+      })
+    ).toBeInTheDocument();
+
     const humanEvents = mockEvents.filter(e => e.actor === 'Human').length;
-    expect(screen.getByText((_content, element) => {
-      return element?.textContent === `Human Actions: ${humanEvents}`;
-    })).toBeInTheDocument();
+    expect(
+      screen.getByText((_content, element) => {
+        return element?.textContent === `Human Actions: ${humanEvents}`;
+      })
+    ).toBeInTheDocument();
   });
 
   it('renders all timeline events', () => {
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={mockEvents}
         onEventClick={mockOnEventClick}
       />
@@ -136,10 +142,10 @@ describe('ThreatTimeline', () => {
 
   it('filters events by type when filter is selected', async () => {
     const user = userEvent.setup();
-    
+
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={mockEvents}
         onEventClick={mockOnEventClick}
       />
@@ -150,14 +156,16 @@ describe('ThreatTimeline', () => {
 
     // Should only show detection events
     expect(screen.getByText('Malware Detected')).toBeInTheDocument();
-    expect(screen.queryByText('Threat Analysis Complete')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Threat Analysis Complete')
+    ).not.toBeInTheDocument();
     expect(screen.queryByText('Mitigation Applied')).not.toBeInTheDocument();
   });
 
   it('displays AI decision analysis for AI events', () => {
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={mockEvents}
         showAIExplanations={true}
         onEventClick={mockOnEventClick}
@@ -173,7 +181,7 @@ describe('ThreatTimeline', () => {
   it('shows actions taken for events that have them', () => {
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={mockEvents}
         onEventClick={mockOnEventClick}
       />
@@ -182,7 +190,7 @@ describe('ThreatTimeline', () => {
     // Use getAllByText since there are multiple "Actions Taken:" elements
     const actionHeaders = screen.getAllByText('Actions Taken:');
     expect(actionHeaders.length).toBeGreaterThan(0);
-    
+
     // Actions are rendered as list items with bullet points
     expect(screen.getByText('• Process terminated')).toBeInTheDocument();
     expect(screen.getByText('• File quarantined')).toBeInTheDocument();
@@ -191,7 +199,7 @@ describe('ThreatTimeline', () => {
   it('displays impact assessment when available', () => {
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={mockEvents}
         onEventClick={mockOnEventClick}
       />
@@ -200,13 +208,15 @@ describe('ThreatTimeline', () => {
     // Use getAllByText since there may be multiple "Impact:" elements
     const impactHeaders = screen.getAllByText('Impact:');
     expect(impactHeaders.length).toBeGreaterThan(0);
-    expect(screen.getByText('Potential system compromise prevented')).toBeInTheDocument();
+    expect(
+      screen.getByText('Potential system compromise prevented')
+    ).toBeInTheDocument();
   });
 
   it('shows related events when they exist', () => {
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={mockEvents}
         onEventClick={mockOnEventClick}
       />
@@ -218,10 +228,10 @@ describe('ThreatTimeline', () => {
 
   it('opens event detail modal when event is clicked', async () => {
     const user = userEvent.setup();
-    
+
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={mockEvents}
         onEventClick={mockOnEventClick}
         isInteractive={true}
@@ -231,17 +241,22 @@ describe('ThreatTimeline', () => {
     // Find the event card by looking for cursor-pointer class
     const eventCards = screen.getAllByText('Malware Detected');
     const clickableCard = eventCards[0]?.closest('.cursor-pointer');
-    
+
     if (clickableCard) {
       await user.click(clickableCard);
 
       // Modal should open with detailed information
-      await waitFor(() => {
-        expect(screen.getByText('Evidence')).toBeInTheDocument();
-        // Use getAllByText since there may be multiple instances in modal + main view
-        const evidenceItems = screen.getAllByText('• Suspicious process behavior');
-        expect(evidenceItems.length).toBeGreaterThan(0);
-      }, { timeout: 5000 });
+      await waitFor(
+        () => {
+          expect(screen.getByText('Evidence')).toBeInTheDocument();
+          // Use getAllByText since there may be multiple instances in modal + main view
+          const evidenceItems = screen.getAllByText(
+            '• Suspicious process behavior'
+          );
+          expect(evidenceItems.length).toBeGreaterThan(0);
+        },
+        { timeout: 5000 }
+      );
 
       expect(mockOnEventClick).toHaveBeenCalledWith(mockEvents[0]);
     } else {
@@ -253,10 +268,10 @@ describe('ThreatTimeline', () => {
 
   it('closes modal when close button is clicked', async () => {
     const user = userEvent.setup();
-    
+
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={mockEvents}
         onEventClick={mockOnEventClick}
         isInteractive={true}
@@ -282,10 +297,10 @@ describe('ThreatTimeline', () => {
 
   it('expands and collapses timeline when toggle button is clicked', async () => {
     const user = userEvent.setup();
-    
+
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={mockEvents}
         onEventClick={mockOnEventClick}
       />
@@ -302,7 +317,7 @@ describe('ThreatTimeline', () => {
   it('shows correct actor colors', () => {
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={mockEvents}
         onEventClick={mockOnEventClick}
       />
@@ -312,7 +327,7 @@ describe('ThreatTimeline', () => {
     const aiEvents = screen.getAllByText('AI');
     expect(aiEvents.length).toBeGreaterThan(0);
 
-    // Human events should have Human indicator  
+    // Human events should have Human indicator
     const humanEvents = screen.getAllByText('Human');
     expect(humanEvents.length).toBeGreaterThan(0);
   });
@@ -320,7 +335,7 @@ describe('ThreatTimeline', () => {
   it('displays timeline progress indicator', () => {
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={mockEvents}
         onEventClick={mockOnEventClick}
       />
@@ -333,34 +348,42 @@ describe('ThreatTimeline', () => {
   it('handles empty events array gracefully', () => {
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={[]}
         onEventClick={mockOnEventClick}
       />
     );
 
     // Use flexible text matching for potentially styled elements
-    expect(screen.getByText((_content, element) => {
-      return element?.textContent === 'Total Events: 0';
-    })).toBeInTheDocument();
-    
-    expect(screen.getByText((_content, element) => {
-      return element?.textContent === 'AI Decisions: 0';
-    })).toBeInTheDocument();
-    
-    expect(screen.getByText((_content, element) => {
-      return element?.textContent === 'Human Actions: 0';
-    })).toBeInTheDocument();
+    expect(
+      screen.getByText((_content, element) => {
+        return element?.textContent === 'Total Events: 0';
+      })
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText((_content, element) => {
+        return element?.textContent === 'AI Decisions: 0';
+      })
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText((_content, element) => {
+        return element?.textContent === 'Human Actions: 0';
+      })
+    ).toBeInTheDocument();
   });
 
   it('shows no events message when filter results in empty list', async () => {
     const user = userEvent.setup();
-    
-    const eventsWithoutDetection = mockEvents.filter(e => e.eventType !== 'detection');
-    
+
+    const eventsWithoutDetection = mockEvents.filter(
+      e => e.eventType !== 'detection'
+    );
+
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={eventsWithoutDetection}
         onEventClick={mockOnEventClick}
       />
@@ -369,13 +392,15 @@ describe('ThreatTimeline', () => {
     const filterSelect = screen.getByDisplayValue('All Events');
     await user.selectOptions(filterSelect, 'detection');
 
-    expect(screen.getByText('No events match the current filter')).toBeInTheDocument();
+    expect(
+      screen.getByText('No events match the current filter')
+    ).toBeInTheDocument();
   });
 
   it('displays confidence and risk scores when available', () => {
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={mockEvents}
         onEventClick={mockOnEventClick}
       />
@@ -388,7 +413,7 @@ describe('ThreatTimeline', () => {
   it('shows AUTO-DETECTED indicator for AI detection events', () => {
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={mockEvents}
         onEventClick={mockOnEventClick}
       />
@@ -400,7 +425,7 @@ describe('ThreatTimeline', () => {
   it('formats timestamps correctly', () => {
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={mockEvents}
         onEventClick={mockOnEventClick}
       />
@@ -413,10 +438,10 @@ describe('ThreatTimeline', () => {
 
   it('handles non-interactive mode correctly', async () => {
     const user = userEvent.setup();
-    
+
     render(
       <ThreatTimeline
-        threatId="T-2024-001"
+        threatId='T-2024-001'
         events={mockEvents}
         onEventClick={mockOnEventClick}
         isInteractive={false}

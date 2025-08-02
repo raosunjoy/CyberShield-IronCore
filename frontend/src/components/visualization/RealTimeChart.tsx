@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
@@ -35,7 +35,7 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
   yAxisLabel = 'Value',
   showGrid = true,
   // animationDuration = 1000, // Reserved for future animation features
-  threshold
+  threshold,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hoveredPoint, setHoveredPoint] = useState<DataPoint | null>(null);
@@ -80,11 +80,14 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
     const chartHeight = height - padding * 2;
 
     // Calculate scales
-    const maxValue = Math.max(...chartData.map(d => d.value), threshold?.value || 0);
+    const maxValue = Math.max(
+      ...chartData.map(d => d.value),
+      threshold?.value || 0
+    );
     const minValue = Math.min(...chartData.map(d => d.value), 0);
     const valueRange = maxValue - minValue || 1;
 
-    // const timeRange = chartData.length > 1 
+    // const timeRange = chartData.length > 1
     //   ? chartData[chartData.length - 1].timestamp.getTime() - chartData[0].timestamp.getTime()
     //   : 1000; // Reserved for time-based scaling
 
@@ -117,8 +120,11 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
 
     // Draw threshold line
     if (threshold) {
-      const thresholdY = padding + chartHeight - ((threshold.value - minValue) / valueRange) * chartHeight;
-      
+      const thresholdY =
+        padding +
+        chartHeight -
+        ((threshold.value - minValue) / valueRange) * chartHeight;
+
       ctx.strokeStyle = threshold.color;
       ctx.globalAlpha = 0.7;
       ctx.lineWidth = 2;
@@ -144,7 +150,10 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
 
       chartData.forEach((point, index) => {
         const x = padding + (index / (chartData.length - 1)) * chartWidth;
-        const y = padding + chartHeight - ((point.value - minValue) / valueRange) * chartHeight;
+        const y =
+          padding +
+          chartHeight -
+          ((point.value - minValue) / valueRange) * chartHeight;
 
         if (index === 0) {
           ctx.moveTo(x, y);
@@ -160,7 +169,12 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
       ctx.lineTo(padding, padding + chartHeight);
       ctx.closePath();
 
-      const gradient = ctx.createLinearGradient(0, padding, 0, padding + chartHeight);
+      const gradient = ctx.createLinearGradient(
+        0,
+        padding,
+        0,
+        padding + chartHeight
+      );
       gradient.addColorStop(0, 'rgba(0, 255, 65, 0.3)');
       gradient.addColorStop(1, 'rgba(0, 255, 65, 0.05)');
       ctx.fillStyle = gradient;
@@ -170,7 +184,10 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
     // Draw data points
     chartData.forEach((point, index) => {
       const x = padding + (index / (chartData.length - 1)) * chartWidth;
-      const y = padding + chartHeight - ((point.value - minValue) / valueRange) * chartHeight;
+      const y =
+        padding +
+        chartHeight -
+        ((point.value - minValue) / valueRange) * chartHeight;
 
       // Point glow
       const gradient = ctx.createRadialGradient(x, y, 0, x, y, 8);
@@ -192,7 +209,7 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
       if (point.severity === 'critical') {
         const time = Date.now() / 1000;
         const pulseRadius = 3 + Math.sin(time * 4) * 2;
-        
+
         ctx.strokeStyle = '#DC267F';
         ctx.globalAlpha = 0.6;
         ctx.lineWidth = 1;
@@ -218,7 +235,7 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
     // Draw axis labels
     ctx.fillStyle = '#00FF41';
     ctx.font = '12px monospace';
-    
+
     // Y-axis labels
     for (let i = 0; i <= 5; i++) {
       const value = minValue + (valueRange / 5) * (5 - i);
@@ -229,11 +246,13 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
     // X-axis labels (time)
     const labelCount = Math.min(5, chartData.length);
     for (let i = 0; i < labelCount; i++) {
-      const dataIndex = Math.floor((chartData.length - 1) * (i / (labelCount - 1)));
+      const dataIndex = Math.floor(
+        (chartData.length - 1) * (i / (labelCount - 1))
+      );
       const point = chartData[dataIndex];
       if (point) {
         const x = padding + (dataIndex / (chartData.length - 1)) * chartWidth;
-        
+
         ctx.save();
         ctx.translate(x, height - padding + 15);
         ctx.rotate(-Math.PI / 4);
@@ -271,14 +290,14 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
     // Find nearest data point
     const padding = 60;
     const chartWidth = width - padding * 2;
-    
+
     let nearestPoint: DataPoint | null = null;
     let minDistance = Infinity;
 
     chartData.forEach((point, index) => {
       const x = padding + (index / (chartData.length - 1)) * chartWidth;
       const distance = Math.abs(mouseX - x);
-      
+
       if (distance < minDistance && distance < 20) {
         minDistance = distance;
         nearestPoint = point;
@@ -297,12 +316,12 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
   }, [chartData, width, height, threshold]);
 
   return (
-    <div className="relative">
+    <div className='relative'>
       <canvas
         ref={canvasRef}
         width={width}
         height={height}
-        className="border border-green-400"
+        className='border border-green-400'
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setHoveredPoint(null)}
         style={{ background: '#000000' }}
@@ -314,49 +333,68 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
-          className="fixed z-50 bg-black border border-green-400 p-3 font-mono text-sm text-green-400 shadow-lg pointer-events-none"
+          className='fixed z-50 bg-black border border-green-400 p-3 font-mono text-sm text-green-400 shadow-lg pointer-events-none'
           style={{
             left: mousePos.x + 10,
             top: mousePos.y - 10,
-            transform: 'translateY(-100%)'
+            transform: 'translateY(-100%)',
           }}
         >
-          <div className="space-y-1">
-            <div className="text-yellow-400 font-bold">
+          <div className='space-y-1'>
+            <div className='text-yellow-400 font-bold'>
               {hoveredPoint.label || 'Data Point'}
             </div>
-            <div>Value: <span className="text-blue-400">{hoveredPoint.value.toFixed(2)}</span></div>
+            <div>
+              Value:{' '}
+              <span className='text-blue-400'>
+                {hoveredPoint.value.toFixed(2)}
+              </span>
+            </div>
             <div>Time: {hoveredPoint.timestamp.toLocaleTimeString()}</div>
             {hoveredPoint.severity && (
-              <div>Severity: <span className={
-                hoveredPoint.severity === 'critical' ? 'text-red-500' :
-                hoveredPoint.severity === 'high' ? 'text-orange-500' :
-                hoveredPoint.severity === 'medium' ? 'text-yellow-500' : 'text-green-500'
-              }>{hoveredPoint.severity.toUpperCase()}</span></div>
+              <div>
+                Severity:{' '}
+                <span
+                  className={
+                    hoveredPoint.severity === 'critical'
+                      ? 'text-red-500'
+                      : hoveredPoint.severity === 'high'
+                        ? 'text-orange-500'
+                        : hoveredPoint.severity === 'medium'
+                          ? 'text-yellow-500'
+                          : 'text-green-500'
+                  }
+                >
+                  {hoveredPoint.severity.toUpperCase()}
+                </span>
+              </div>
             )}
           </div>
         </motion.div>
       )}
 
       {/* Real-time indicator */}
-      <div className="absolute top-2 right-2 flex items-center gap-2">
+      <div className='absolute top-2 right-2 flex items-center gap-2'>
         <motion.div
           animate={{ opacity: [1, 0.3, 1] }}
           transition={{ repeat: Infinity, duration: 1 }}
-          className="w-2 h-2 bg-green-400 rounded-full"
+          className='w-2 h-2 bg-green-400 rounded-full'
         />
-        <span className="text-green-400 text-xs font-mono">LIVE</span>
+        <span className='text-green-400 text-xs font-mono'>LIVE</span>
       </div>
 
       {/* Data summary */}
-      <div className="absolute bottom-2 left-2 bg-black bg-opacity-80 border border-green-400 p-2 font-mono text-xs">
-        <div className="text-green-400">
-          Latest: <span className="text-yellow-400">
-            {chartData.length > 0 && chartData[chartData.length - 1] ? chartData[chartData.length - 1]!.value.toFixed(2) : 'N/A'}
+      <div className='absolute bottom-2 left-2 bg-black bg-opacity-80 border border-green-400 p-2 font-mono text-xs'>
+        <div className='text-green-400'>
+          Latest:{' '}
+          <span className='text-yellow-400'>
+            {chartData.length > 0 && chartData[chartData.length - 1]
+              ? chartData[chartData.length - 1]!.value.toFixed(2)
+              : 'N/A'}
           </span>
         </div>
-        <div className="text-green-400">
-          Points: <span className="text-blue-400">{chartData.length}</span>
+        <div className='text-green-400'>
+          Points: <span className='text-blue-400'>{chartData.length}</span>
         </div>
       </div>
     </div>

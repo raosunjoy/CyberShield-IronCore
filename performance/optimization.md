@@ -88,12 +88,12 @@ class PerformanceCache:
         )
         self.local_cache = {}  # L1 cache
         self.max_local_size = 1000
-    
+
     async def get(self, key: str) -> Optional[Any]:
         # L1 cache first
         if key in self.local_cache:
             return self.local_cache[key]
-        
+
         # L2 Redis cache
         compressed_data = await self.redis.get(key)
         if compressed_data:
@@ -102,14 +102,14 @@ class PerformanceCache:
             if len(self.local_cache) < self.max_local_size:
                 self.local_cache[key] = data
             return data
-        
+
         return None
-    
+
     async def set(self, key: str, value: Any, ttl: int = 3600):
         # Compress data for Redis
         compressed_data = gzip.compress(pickle.dumps(value))
         await self.redis.setex(key, ttl, compressed_data)
-        
+
         # Store in L1 cache
         if len(self.local_cache) < self.max_local_size:
             self.local_cache[key] = value
@@ -128,29 +128,29 @@ class OptimizedAIEngine:
         # Enable TensorFlow optimizations
         tf.config.experimental.enable_tensor_float_32()
         tf.config.optimizer.set_jit(True)  # XLA compilation
-        
+
         # Create dedicated thread pool for CPU-intensive tasks
         self.cpu_executor = ThreadPoolExecutor(
             max_workers=4,
             thread_name_prefix="ai_cpu"
         )
-        
+
         # Batch inference for efficiency
         self.batch_size = 32
         self.pending_requests = []
         self.batch_timeout = 0.01  # 10ms batching window
-    
+
     async def predict_batch(self, features_batch):
         """Batch multiple requests for efficiency"""
         loop = asyncio.get_event_loop()
-        
+
         # Run inference in thread pool to avoid blocking
         return await loop.run_in_executor(
             self.cpu_executor,
             self._run_inference_sync,
             features_batch
         )
-    
+
     def _run_inference_sync(self, features_batch):
         """Optimized synchronous inference"""
         with tf.device('/CPU:0'):  # Use specific device
@@ -175,14 +175,14 @@ const ThreatCard = memo(({ threat, onThreatClick }: ThreatCardProps) => {
   const riskColor = useMemo(() => {
     return getRiskColor(threat.riskScore);
   }, [threat.riskScore]);
-  
+
   // Memoize event handlers
   const handleClick = useCallback(() => {
     onThreatClick(threat.id);
   }, [threat.id, onThreatClick]);
-  
+
   return (
-    <div 
+    <div
       className={`threat-card ${riskColor}`}
       onClick={handleClick}
     >
@@ -223,42 +223,36 @@ class OptimizedCanvas {
   private ctx: CanvasRenderingContext2D;
   private offscreenCanvas: OffscreenCanvas;
   private animationId: number;
-  
+
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d', {
-      alpha: false,  // Disable alpha channel for performance
-      desynchronized: true,  // Allow async rendering
+      alpha: false, // Disable alpha channel for performance
+      desynchronized: true, // Allow async rendering
     })!;
-    
+
     // Use offscreen canvas for complex rendering
-    this.offscreenCanvas = new OffscreenCanvas(
-      canvas.width, 
-      canvas.height
-    );
+    this.offscreenCanvas = new OffscreenCanvas(canvas.width, canvas.height);
   }
-  
+
   private render = () => {
     // Clear only dirty regions instead of full canvas
     this.clearDirtyRegions();
-    
+
     // Batch draw operations
     this.ctx.save();
     this.drawThreats();
     this.drawGrid();
     this.ctx.restore();
-    
+
     // Schedule next frame
     this.animationId = requestAnimationFrame(this.render);
   };
-  
+
   private clearDirtyRegions() {
     // Only clear areas that changed
     this.dirtyRegions.forEach(region => {
-      this.ctx.clearRect(
-        region.x, region.y, 
-        region.width, region.height
-      );
+      this.ctx.clearRect(region.x, region.y, region.width, region.height);
     });
     this.dirtyRegions.clear();
   }
@@ -274,41 +268,41 @@ class OptimizedWebSocket {
   private messageQueue: any[] = [];
   private readonly maxConnections = 4;
   private roundRobinIndex = 0;
-  
+
   constructor(url: string) {
     // Create connection pool
     for (let i = 0; i < this.maxConnections; i++) {
       this.createConnection(url);
     }
   }
-  
+
   private createConnection(url: string) {
     const ws = new WebSocket(url);
-    
+
     ws.binaryType = 'arraybuffer'; // Faster than blob
-    
+
     ws.onopen = () => {
       this.connections.push(ws);
       this.flushMessageQueue();
     };
-    
-    ws.onmessage = (event) => {
+
+    ws.onmessage = event => {
       // Use MessagePack for binary serialization (faster than JSON)
       const data = msgpack.decode(new Uint8Array(event.data));
       this.handleMessage(data);
     };
   }
-  
+
   public send(data: any) {
     if (this.connections.length === 0) {
       this.messageQueue.push(data);
       return;
     }
-    
+
     // Round-robin load balancing
     const connection = this.connections[this.roundRobinIndex];
     this.roundRobinIndex = (this.roundRobinIndex + 1) % this.connections.length;
-    
+
     // Use binary serialization
     const binaryData = msgpack.encode(data);
     connection.send(binaryData);
@@ -327,7 +321,7 @@ kind: Deployment
 metadata:
   name: cybershield-backend
 spec:
-  replicas: 6  # Start with 6 replicas
+  replicas: 6 # Start with 6 replicas
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -336,36 +330,36 @@ spec:
   template:
     spec:
       containers:
-      - name: backend
-        image: cybershield/backend:latest
-        resources:
-          requests:
-            cpu: "500m"
-            memory: "1Gi"
-          limits:
-            cpu: "2000m"
-            memory: "4Gi"
-        env:
-        - name: WORKERS
-          value: "4"
-        - name: WORKER_CLASS
-          value: "uvicorn.workers.UvicornWorker"
-        - name: MAX_REQUESTS
-          value: "10000"  # Restart workers after 10k requests
-        - name: MAX_REQUESTS_JITTER
-          value: "1000"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8000
-          initialDelaySeconds: 5
-          periodSeconds: 5
+        - name: backend
+          image: cybershield/backend:latest
+          resources:
+            requests:
+              cpu: '500m'
+              memory: '1Gi'
+            limits:
+              cpu: '2000m'
+              memory: '4Gi'
+          env:
+            - name: WORKERS
+              value: '4'
+            - name: WORKER_CLASS
+              value: 'uvicorn.workers.UvicornWorker'
+            - name: MAX_REQUESTS
+              value: '10000' # Restart workers after 10k requests
+            - name: MAX_REQUESTS_JITTER
+              value: '1000'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
 
 ---
 # Horizontal Pod Autoscaler
@@ -381,31 +375,31 @@ spec:
   minReplicas: 6
   maxReplicas: 50
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: Utilization
-        averageUtilization: 80
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
   behavior:
     scaleUp:
       stabilizationWindowSeconds: 60
       policies:
-      - type: Percent
-        value: 100
-        periodSeconds: 60
+        - type: Percent
+          value: 100
+          periodSeconds: 60
     scaleDown:
       stabilizationWindowSeconds: 300
       policies:
-      - type: Percent
-        value: 10
-        periodSeconds: 60
+        - type: Percent
+          value: 10
+          periodSeconds: 60
 ```
 
 ### 2. **Database Performance Tuning**
@@ -445,15 +439,15 @@ track_io_timing = on
 track_functions = all
 
 -- Optimized indexes for threat detection queries
-CREATE INDEX CONCURRENTLY idx_threats_timestamp_severity 
-ON threats (timestamp DESC, severity) 
+CREATE INDEX CONCURRENTLY idx_threats_timestamp_severity
+ON threats (timestamp DESC, severity)
 WHERE timestamp > NOW() - INTERVAL '24 hours';
 
-CREATE INDEX CONCURRENTLY idx_events_risk_score 
+CREATE INDEX CONCURRENTLY idx_events_risk_score
 ON events USING BRIN (risk_score, created_at) WITH (pages_per_range = 128);
 
 -- Partitioning for large tables
-CREATE TABLE threat_events_2024 PARTITION OF threat_events 
+CREATE TABLE threat_events_2024 PARTITION OF threat_events
 FOR VALUES FROM ('2024-01-01') TO ('2025-01-01');
 ```
 
@@ -477,7 +471,7 @@ http {
     tcp_nodelay on;
     keepalive_timeout 65;
     keepalive_requests 10000;
-    
+
     # Compression
     gzip on;
     gzip_vary on;
@@ -493,14 +487,14 @@ http {
         application/xml+rss
         application/atom+xml
         image/svg+xml;
-    
+
     # Caching
     location ~* \.(jpg|jpeg|png|gif|ico|css|js|woff|woff2)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";
         add_header Vary Accept-Encoding;
     }
-    
+
     # API caching for static data
     location /api/static/ {
         proxy_pass http://backend;
@@ -509,24 +503,24 @@ http {
         proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
         add_header X-Cache-Status $upstream_cache_status;
     }
-    
+
     # Rate limiting
     limit_req_zone $binary_remote_addr zone=api:10m rate=100r/s;
     limit_req_zone $binary_remote_addr zone=login:10m rate=5r/s;
-    
+
     location /api/auth/login {
         limit_req zone=login burst=10 nodelay;
         proxy_pass http://backend;
     }
-    
+
     location /api/ {
         limit_req zone=api burst=200 nodelay;
         proxy_pass http://backend;
-        
+
         # Connection pooling
         proxy_http_version 1.1;
         proxy_set_header Connection "";
-        
+
         # Timeouts
         proxy_connect_timeout 5s;
         proxy_send_timeout 10s;
@@ -588,7 +582,7 @@ echo "============================================="
 # API response times
 echo "📊 API Performance:"
 echo "  - p50 response time: 45ms"
-echo "  - p95 response time: 89ms"  
+echo "  - p95 response time: 89ms"
 echo "  - p99 response time: 156ms"
 echo "  - Max throughput: 1.2M RPS"
 
@@ -628,7 +622,7 @@ echo "🎯 Ready for $1B acquisition scale!"
 ✅ **AI Performance:** <10ms inference latency  
 ✅ **Database:** <15ms query response time  
 ✅ **Cache Hit Ratio:** >90% for static data  
-✅ **Resource Efficiency:** 65% CPU, 78% memory utilization  
+✅ **Resource Efficiency:** 65% CPU, 78% memory utilization
 
 ### **Next-Level Optimizations:**
 
@@ -636,7 +630,7 @@ echo "🎯 Ready for $1B acquisition scale!"
 🔮 **GPU Acceleration:** CUDA-optimized AI inference  
 🔮 **Advanced Caching:** Redis Cluster with read replicas  
 🔮 **CDN Integration:** Global threat intelligence distribution  
-🔮 **Database Sharding:** Horizontal scaling for massive datasets  
+🔮 **Database Sharding:** Horizontal scaling for massive datasets
 
 ---
 

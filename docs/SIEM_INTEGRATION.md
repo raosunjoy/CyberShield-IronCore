@@ -4,7 +4,7 @@
 
 **Status**: ✅ Production Ready  
 **Coverage**: Splunk, IBM QRadar, ArcSight ESM, Generic Syslog  
-**Certification**: Enterprise-grade for Fortune 500 deployment  
+**Certification**: Enterprise-grade for Fortune 500 deployment
 
 ---
 
@@ -14,12 +14,12 @@ The CyberShield-IronCore SIEM Integration provides certified connectors for majo
 
 ### Supported Platforms
 
-| Platform | Format | Transport | Certification |
-|----------|--------|-----------|---------------|
-| **Splunk Enterprise Security** | JSON | HTTP Event Collector | ✅ Certified |
-| **IBM QRadar SIEM** | QRadar API | REST API | ✅ Certified |
-| **ArcSight ESM** | CEF | Syslog | ✅ Certified |
-| **Generic SIEM** | RFC 5424 | Syslog (UDP/TCP/TLS) | ✅ Standard Compliant |
+| Platform                       | Format     | Transport            | Certification         |
+| ------------------------------ | ---------- | -------------------- | --------------------- |
+| **Splunk Enterprise Security** | JSON       | HTTP Event Collector | ✅ Certified          |
+| **IBM QRadar SIEM**            | QRadar API | REST API             | ✅ Certified          |
+| **ArcSight ESM**               | CEF        | Syslog               | ✅ Certified          |
+| **Generic SIEM**               | RFC 5424   | Syslog (UDP/TCP/TLS) | ✅ Standard Compliant |
 
 ---
 
@@ -79,11 +79,13 @@ curl "https://api.cybershield.com/api/v1/siem/connectors" \
 ### Splunk Enterprise Security
 
 **Requirements:**
+
 - Splunk Enterprise 8.0+ or Splunk Cloud
 - HTTP Event Collector (HEC) enabled
 - Valid HEC token with index permissions
 
 **Configuration:**
+
 ```json
 {
   "platform": "splunk",
@@ -98,6 +100,7 @@ curl "https://api.cybershield.com/api/v1/siem/connectors" \
 ```
 
 **Event Format:**
+
 - Uses Splunk HTTP Event Collector JSON format
 - Automatic timestamp conversion
 - Rich metadata and structured data
@@ -106,11 +109,13 @@ curl "https://api.cybershield.com/api/v1/siem/connectors" \
 ### IBM QRadar SIEM
 
 **Requirements:**
-- QRadar SIEM 7.3.0+ 
+
+- QRadar SIEM 7.3.0+
 - API access with Security Admin privileges
 - Valid API authentication token
 
 **Configuration:**
+
 ```json
 {
   "platform": "qradar",
@@ -124,6 +129,7 @@ curl "https://api.cybershield.com/api/v1/siem/connectors" \
 ```
 
 **Event Format:**
+
 - Creates QRadar offenses via REST API
 - Automatic severity/magnitude mapping (1-10 scale)
 - Custom properties for CyberShield metadata
@@ -132,11 +138,13 @@ curl "https://api.cybershield.com/api/v1/siem/connectors" \
 ### ArcSight Enterprise Security Manager
 
 **Requirements:**
+
 - ArcSight ESM 7.0+ or ArcSight Platform
 - Syslog receiver configured for CEF events
 - Network connectivity to syslog port
 
 **Configuration:**
+
 ```json
 {
   "platform": "arcsight",
@@ -150,6 +158,7 @@ curl "https://api.cybershield.com/api/v1/siem/connectors" \
 ```
 
 **Event Format:**
+
 - Common Event Format (CEF) compliance
 - UDP/TCP/TLS transport options
 - Rich field mapping for threat attributes
@@ -158,11 +167,13 @@ curl "https://api.cybershield.com/api/v1/siem/connectors" \
 ### Generic Syslog (Any SIEM)
 
 **Requirements:**
+
 - Any SIEM platform with syslog ingestion
 - RFC 5424 syslog format support
 - Network connectivity to syslog receiver
 
 **Configuration:**
+
 ```json
 {
   "platform": "generic_syslog",
@@ -177,6 +188,7 @@ curl "https://api.cybershield.com/api/v1/siem/connectors" \
 ```
 
 **Event Format:**
+
 - RFC 5424 structured syslog format
 - Custom structured data fields
 - Facility/severity mapping
@@ -189,6 +201,7 @@ curl "https://api.cybershield.com/api/v1/siem/connectors" \
 ### Authentication
 
 All SIEM API endpoints require Bearer token authentication:
+
 ```
 Authorization: Bearer <your-api-token>
 ```
@@ -196,9 +209,11 @@ Authorization: Bearer <your-api-token>
 ### Endpoints
 
 #### `POST /api/v1/siem/connectors`
+
 Register a new SIEM connector for the tenant.
 
 **Request Body:**
+
 ```json
 {
   "platform": "splunk|qradar|arcsight|generic_syslog",
@@ -209,6 +224,7 @@ Register a new SIEM connector for the tenant.
 ```
 
 **Response:**
+
 ```json
 {
   "platform": "splunk",
@@ -219,9 +235,11 @@ Register a new SIEM connector for the tenant.
 ```
 
 #### `GET /api/v1/siem/connectors`
+
 Get status of all SIEM connectors for the tenant.
 
 **Response:**
+
 ```json
 {
   "tenant_id": "uuid",
@@ -239,9 +257,11 @@ Get status of all SIEM connectors for the tenant.
 ```
 
 #### `POST /api/v1/siem/connectors/test`
+
 Test connectivity to all configured SIEM platforms.
 
 **Response:**
+
 ```json
 {
   "total_connectors": 2,
@@ -255,9 +275,11 @@ Test connectivity to all configured SIEM platforms.
 ```
 
 #### `POST /api/v1/siem/events/forward`
+
 Forward threat events to configured SIEM platforms.
 
 **Request Body:**
+
 ```json
 {
   "events": [
@@ -275,11 +297,12 @@ Forward threat events to configured SIEM platforms.
       "iocs": ["hash1", "ip2", "domain3"]
     }
   ],
-  "platforms": ["splunk", "qradar"]  // Optional: specific platforms
+  "platforms": ["splunk", "qradar"] // Optional: specific platforms
 }
 ```
 
 **Response:**
+
 ```json
 {
   "total_events": 1,
@@ -293,9 +316,11 @@ Forward threat events to configured SIEM platforms.
 ```
 
 #### `DELETE /api/v1/siem/connectors/{platform}`
+
 Remove a SIEM connector for the tenant.
 
 **Response:**
+
 ```json
 {
   "message": "Successfully removed splunk connector",
@@ -305,9 +330,11 @@ Remove a SIEM connector for the tenant.
 ```
 
 #### `GET /api/v1/siem/platforms`
+
 Get supported SIEM platforms and configuration requirements.
 
 **Response:**
+
 ```json
 {
   "total_platforms": 4,
@@ -339,7 +366,7 @@ Get supported SIEM platforms and configuration requirements.
 ```json
 {
   "id": "uuid",
-  "tenant_id": "uuid", 
+  "tenant_id": "uuid",
   "timestamp": "2023-01-01T12:00:00Z",
   "event_type": "malware_detection",
   "severity": "high",
@@ -367,31 +394,34 @@ Get supported SIEM platforms and configuration requirements.
 
 ### Field Mappings
 
-| CyberShield Field | Splunk Field | QRadar Field | CEF Field | Syslog Field |
-|-------------------|--------------|--------------|-----------|--------------|
-| `severity` | `severity` | `magnitude` | `severity` | `priority` |
-| `confidence_score` | `confidence_score` | `credibility` | `cn1` | `confidence` |
-| `risk_score` | `risk_score` | `relevance` | `cn2` | `risk_score` |
-| `source_ip` | `src_ip` | `source_network` | `src` | `src` |
-| `mitre_technique` | `mitre_technique` | `properties.mitre_technique` | `cs2` | `mitre_technique` |
+| CyberShield Field  | Splunk Field       | QRadar Field                 | CEF Field  | Syslog Field      |
+| ------------------ | ------------------ | ---------------------------- | ---------- | ----------------- |
+| `severity`         | `severity`         | `magnitude`                  | `severity` | `priority`        |
+| `confidence_score` | `confidence_score` | `credibility`                | `cn1`      | `confidence`      |
+| `risk_score`       | `risk_score`       | `relevance`                  | `cn2`      | `risk_score`      |
+| `source_ip`        | `src_ip`           | `source_network`             | `src`      | `src`             |
+| `mitre_technique`  | `mitre_technique`  | `properties.mitre_technique` | `cs2`      | `mitre_technique` |
 
 ---
 
 ## Multi-Tenant Security
 
 ### Tenant Isolation
+
 - Complete data isolation per tenant
 - Separate SIEM connectors per tenant
 - No cross-tenant data leakage
 - Audit trails for all SIEM operations
 
 ### Configuration Security
+
 - Encrypted configuration storage
 - Secure credential management
 - Role-based access control
 - Connection validation and testing
 
 ### Event Security
+
 - Sanitized event payloads
 - No sensitive data in logs
 - Audit trail for all forwarded events
@@ -402,12 +432,14 @@ Get supported SIEM platforms and configuration requirements.
 ## Performance & Scaling
 
 ### Throughput Specifications
+
 - **Splunk**: 10,000+ events/second via HTTP batching
 - **QRadar**: 1,000+ events/second via REST API
 - **ArcSight**: 5,000+ events/second via syslog UDP
 - **Generic**: 8,000+ events/second via syslog TCP
 
 ### Optimization Features
+
 - Automatic event batching
 - Connection pooling and reuse
 - Retry logic with exponential backoff
@@ -415,6 +447,7 @@ Get supported SIEM platforms and configuration requirements.
 - Performance monitoring and metrics
 
 ### Enterprise Deployment
+
 - Kubernetes auto-scaling support
 - Load balancing across SIEM connectors
 - Health monitoring and alerting
@@ -426,12 +459,14 @@ Get supported SIEM platforms and configuration requirements.
 ## Monitoring & Observability
 
 ### Health Checks
+
 - Automated connection testing every 5 minutes
 - Real-time connectivity monitoring
 - Performance metrics collection
 - Alert generation for failures
 
 ### Metrics Available
+
 - Events forwarded per platform
 - Success/failure rates
 - Response time percentiles
@@ -439,6 +474,7 @@ Get supported SIEM platforms and configuration requirements.
 - Error rate tracking
 
 ### Alerting Integration
+
 - PagerDuty integration for critical failures
 - Slack notifications for warnings
 - Email alerts for configuration issues
@@ -451,9 +487,10 @@ Get supported SIEM platforms and configuration requirements.
 ### Common Issues
 
 #### Connection Failures
+
 ```
 Error: "Connection test failed for splunk connector"
-Solution: 
+Solution:
 1. Verify HEC URL is accessible
 2. Check HEC token permissions
 3. Validate SSL certificate if verify_ssl=true
@@ -461,6 +498,7 @@ Solution:
 ```
 
 #### Authentication Errors
+
 ```
 Error: "QRadar API authentication failed"
 Solution:
@@ -471,6 +509,7 @@ Solution:
 ```
 
 #### Event Forwarding Failures
+
 ```
 Error: "Failed to send events to platform"
 Solution:
@@ -481,7 +520,9 @@ Solution:
 ```
 
 ### Debug Mode
+
 Enable detailed logging:
+
 ```json
 {
   "LOG_LEVEL": "DEBUG",
@@ -490,6 +531,7 @@ Enable detailed logging:
 ```
 
 ### Support Contacts
+
 - **Technical Support**: siem-support@cybershield.com
 - **Emergency Escalation**: +1-555-CYBER-911
 - **Documentation**: https://docs.cybershield.com/siem
@@ -499,18 +541,21 @@ Enable detailed logging:
 ## Compliance & Certifications
 
 ### Industry Standards
+
 - ✅ **MITRE ATT&CK Framework** - Native technique mapping
 - ✅ **Common Event Format (CEF)** - Full CEF compliance
 - ✅ **RFC 5424** - Standard syslog format support
 - ✅ **OWASP Top 10** - Secure implementation
 
 ### Enterprise Certifications
+
 - ✅ **SOC 2 Type II** - Security and availability controls
 - ✅ **ISO 27001** - Information security management
 - ✅ **FedRAMP Ready** - Government cloud readiness
 - ✅ **GDPR Compliant** - Data protection and privacy
 
 ### Platform Certifications
+
 - ✅ **Splunk Technology Partner** - Certified integration
 - ✅ **IBM Security Partner** - QRadar certified connector
 - ✅ **Micro Focus Partner** - ArcSight ESM integration
@@ -521,12 +566,14 @@ Enable detailed logging:
 ## Getting Started Checklist
 
 ### Prerequisites
+
 - [ ] CyberShield-IronCore Platform Access
 - [ ] Valid API authentication token
 - [ ] SIEM platform administrative access
 - [ ] Network connectivity validation
 
 ### Setup Steps
+
 1. [ ] **Choose SIEM Platform** - Select from supported platforms
 2. [ ] **Gather Configuration** - Collect required connection details
 3. [ ] **Register Connector** - Use POST `/api/v1/siem/connectors` endpoint
@@ -535,6 +582,7 @@ Enable detailed logging:
 6. [ ] **Monitor Health** - Implement monitoring and alerting
 
 ### Validation
+
 - [ ] **Connection Test Passed** - All platforms show "connected: true"
 - [ ] **Events Forwarding** - Test events appear in SIEM platform
 - [ ] **Performance Verified** - Response times under 100ms
@@ -542,4 +590,4 @@ Enable detailed logging:
 
 ---
 
-*For additional support and enterprise deployment assistance, contact our Solution Engineering team at enterprise@cybershield.com*
+_For additional support and enterprise deployment assistance, contact our Solution Engineering team at enterprise@cybershield.com_

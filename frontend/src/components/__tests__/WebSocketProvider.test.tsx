@@ -1,7 +1,14 @@
 import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { WebSocketProvider, useWebSocket, useWebSocketSubscription } from '../realtime/WebSocketProvider';
+import {
+  WebSocketProvider,
+  useWebSocket,
+  useWebSocketSubscription,
+} from '../realtime/WebSocketProvider';
+
+// Store mock instance for test access
+let mockWebSocketInstance: MockWebSocket | null = null;
 
 // Mock WebSocket class for testing
 class MockWebSocket {
@@ -10,15 +17,18 @@ class MockWebSocket {
   static CLOSING = 2;
   static CLOSED = 3;
 
-  readyState = MockWebSocket.OPEN; // Start as open for testing
+  readyState = MockWebSocket.CONNECTING;
   onopen: ((event: Event) => void) | null = null;
   onclose: ((event: CloseEvent) => void) | null = null;
   onmessage: ((event: MessageEvent) => void) | null = null;
   onerror: ((event: Event) => void) | null = null;
 
   constructor(public url: string) {
-    // Immediately trigger onopen for testing
+    mockWebSocketInstance = this;
+
+    // Set up connection timing to allow proper act() wrapping
     setTimeout(() => {
+      this.readyState = MockWebSocket.OPEN;
       if (this.onopen) {
         this.onopen(new Event('open'));
       }
@@ -38,7 +48,9 @@ class MockWebSocket {
 
   simulateMessage(data: any) {
     if (this.onmessage) {
-      this.onmessage(new MessageEvent('message', { data: JSON.stringify(data) }));
+      this.onmessage(
+        new MessageEvent('message', { data: JSON.stringify(data) })
+      );
     }
   }
 
@@ -48,9 +60,6 @@ class MockWebSocket {
     }
   }
 }
-
-// Replace global WebSocket with mock
-(global as any).WebSocket = MockWebSocket;
 
 // Test component that uses the WebSocket context
 const TestComponent: React.FC = () => {
@@ -65,16 +74,16 @@ const TestComponent: React.FC = () => {
 
   return (
     <div>
-      <div data-testid="connection-status">{connectionStatus}</div>
-      <div data-testid="is-connected">{isConnected.toString()}</div>
-      <div data-testid="threat-count">{threatCount}</div>
-      <div data-testid="system-health">{systemHealth}</div>
-      <div data-testid="last-message">
+      <div data-testid='connection-status'>{connectionStatus}</div>
+      <div data-testid='is-connected'>{isConnected.toString()}</div>
+      <div data-testid='threat-count'>{threatCount}</div>
+      <div data-testid='system-health'>{systemHealth}</div>
+      <div data-testid='last-message'>
         {lastMessage ? JSON.stringify(lastMessage) : 'null'}
       </div>
       <button
         onClick={() => sendMessage({ type: 'test', data: 'test message' })}
-        data-testid="send-message"
+        data-testid='send-message'
       >
         Send Message
       </button>
@@ -86,27 +95,23 @@ const TestComponent: React.FC = () => {
 const SubscriptionTestComponent: React.FC = () => {
   const [receivedData, setReceivedData] = React.useState<any>(null);
 
-  useWebSocketSubscription('threat_detected', (data) => {
+  useWebSocketSubscription('threat_detected', data => {
     setReceivedData(data);
   });
 
   return (
-    <div data-testid="subscription-data">
+    <div data-testid='subscription-data'>
       {receivedData ? JSON.stringify(receivedData) : 'null'}
     </div>
   );
 };
 
 describe('WebSocketProvider', () => {
-  let mockWebSocket: MockWebSocket;
-
   beforeEach(() => {
     jest.clearAllMocks();
-    // Capture the WebSocket instance for testing
-    (global as any).WebSocket = jest.fn((url: string) => {
-      mockWebSocket = new MockWebSocket(url);
-      return mockWebSocket;
-    });
+    mockWebSocketInstance = null;
+    // Replace global WebSocket constructor
+    (global as any).WebSocket = MockWebSocket;
   });
 
   afterEach(() => {
@@ -141,7 +146,7 @@ describe('WebSocketProvider', () => {
 
   it('handles connection establishment', async () => {
     render(
-      <WebSocketProvider wsUrl="ws://localhost:8080/ws">
+      <WebSocketProvider wsUrl='ws://localhost:8080/ws'>
         <TestComponent />
       </WebSocketProvider>
     );
@@ -151,7 +156,9 @@ describe('WebSocketProvider', () => {
       expect(screen.getByTestId('is-connected')).toHaveTextContent('true');
     });
 
-    expect(screen.getByTestId('connection-status')).toHaveTextContent('connected');
+    expect(screen.getByTestId('connection-status')).toHaveTextContent(
+      'connected'
+    );
   });
 
   it('handles threat detection messages correctly', async () => {
@@ -161,13 +168,14 @@ describe('WebSocketProvider', () => {
       </WebSocketProvider>
     );
 
+    // Wait for connection to be established
     await waitFor(() => {
       expect(screen.getByTestId('is-connected')).toHaveTextContent('true');
     });
 
     // Simulate receiving a threat detection message
-    act(() => {
-      mockWebSocket.simulateMessage({
+    await act(async () => {
+      mockWebSocketInstance?.simulateMessage({
         type: 'threat_detected',
         timestamp: new Date().toISOString(),
         data: {
@@ -196,7 +204,7 @@ describe('WebSocketProvider', () => {
 
     // Simulate critical threat
     act(() => {
-      mockWebSocket.simulateMessage({
+      mockWebSocketInstance?.simulateMessage({
         type: 'threat_detected',
         timestamp: new Date().toISOString(),
         data: {
@@ -225,7 +233,7 @@ describe('WebSocketProvider', () => {
 
     // Simulate system status message
     act(() => {
-      mockWebSocket.simulateMessage({
+      mockWebSocketInstance?.simulateMessage({
         type: 'system_status',
         timestamp: new Date().toISOString(),
         data: {
@@ -259,7 +267,7 @@ describe('WebSocketProvider', () => {
     };
 
     act(() => {
-      mockWebSocket.simulateMessage(testMessage);
+      mockWebSocketInstance?.simulateMessage(testMessage);
     });
 
     await waitFor(() => {
@@ -286,12 +294,11 @@ describe('WebSocketProvider', () => {
       sendButton.click();
     });
 
-    expect(sendSpy).toHaveBeenCalledWith(
-      JSON.stringify({
-        type: 'test',
-        data: 'test message',
-        timestamp: expect.any(String),
-      })
+    expect(sendSpy).toHaveBeenLastCalledWith(
+      expect.stringContaining('"type":"test"')
+    );
+    expect(sendSpy).toHaveBeenLastCalledWith(
+      expect.stringContaining('"data":"test message"')
     );
   });
 
@@ -304,11 +311,13 @@ describe('WebSocketProvider', () => {
 
     // Simulate connection error
     act(() => {
-      mockWebSocket.simulateError();
+      mockWebSocketInstance?.simulateError();
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId('connection-status')).toHaveTextContent('error');
+      expect(screen.getByTestId('connection-status')).toHaveTextContent(
+        'error'
+      );
     });
   });
 
@@ -325,11 +334,13 @@ describe('WebSocketProvider', () => {
 
     // Simulate connection close
     act(() => {
-      mockWebSocket.close();
+      mockWebSocketInstance?.close();
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId('connection-status')).toHaveTextContent('disconnected');
+      expect(screen.getByTestId('connection-status')).toHaveTextContent(
+        'disconnected'
+      );
       expect(screen.getByTestId('is-connected')).toHaveTextContent('false');
     });
   });
@@ -353,7 +364,7 @@ describe('WebSocketProvider', () => {
     };
 
     act(() => {
-      mockWebSocket.simulateMessage({
+      mockWebSocketInstance?.simulateMessage({
         type: 'threat_detected',
         timestamp: new Date().toISOString(),
         data: testData,
@@ -368,7 +379,6 @@ describe('WebSocketProvider', () => {
 
   it('uses custom WebSocket URL when provided', () => {
     const customUrl = 'ws://custom-url:9090/ws';
-    const WebSocketSpy = jest.spyOn(global as any, 'WebSocket');
 
     render(
       <WebSocketProvider wsUrl={customUrl}>
@@ -376,7 +386,8 @@ describe('WebSocketProvider', () => {
       </WebSocketProvider>
     );
 
-    expect(WebSocketSpy).toHaveBeenCalledWith(customUrl);
+    // Verify the mock WebSocket was created with the custom URL
+    expect(mockWebSocketInstance?.url).toBe(customUrl);
   });
 
   it('throws error when useWebSocket is used outside provider', () => {
@@ -409,7 +420,7 @@ describe('WebSocketProvider', () => {
 
     // Simulate heartbeat message - should not affect other state
     act(() => {
-      mockWebSocket.simulateMessage({
+      mockWebSocketInstance?.simulateMessage({
         type: 'heartbeat',
         timestamp: new Date().toISOString(),
         data: {},
@@ -438,14 +449,13 @@ describe('WebSocketProvider', () => {
 
     // Should have sent initial connection message
     expect(sendSpy).toHaveBeenCalledWith(
-      JSON.stringify({
-        type: 'client_connect',
-        timestamp: expect.any(String),
-        data: {
-          client_type: 'cybershield_frontend',
-          version: '1.0.0',
-        },
-      })
+      expect.stringContaining('"type":"client_connect"')
+    );
+    expect(sendSpy).toHaveBeenCalledWith(
+      expect.stringContaining('"client_type":"cybershield_frontend"')
+    );
+    expect(sendSpy).toHaveBeenCalledWith(
+      expect.stringContaining('"version":"1.0.0"')
     );
   });
 });

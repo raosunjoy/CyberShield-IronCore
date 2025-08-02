@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -30,55 +30,55 @@ const JARVIS_COMMANDS: JarvisCommand[] = [
     command: 'show threats',
     description: 'Display current threat dashboard',
     category: 'threat',
-    example: 'show threats from last hour'
+    example: 'show threats from last hour',
   },
   {
     command: 'analyze threat',
     description: 'Perform AI analysis on specific threat',
     category: 'analysis',
-    example: 'analyze threat T-2024-001'
+    example: 'analyze threat T-2024-001',
   },
   {
     command: 'system status',
     description: 'Check overall system health',
     category: 'system',
-    example: 'system status'
+    example: 'system status',
   },
   {
     command: 'risk assessment',
     description: 'Generate risk assessment report',
     category: 'analysis',
-    example: 'risk assessment for network segment'
+    example: 'risk assessment for network segment',
   },
   {
     command: 'generate report',
     description: 'Create security report',
     category: 'report',
-    example: 'generate daily security report'
+    example: 'generate daily security report',
   },
   {
     command: 'scan network',
     description: 'Initiate network vulnerability scan',
     category: 'system',
-    example: 'scan network 192.168.1.0/24'
+    example: 'scan network 192.168.1.0/24',
   },
   {
     command: 'explain decision',
     description: 'Explain AI threat detection decision',
     category: 'analysis',
-    example: 'explain decision for alert A-123'
+    example: 'explain decision for alert A-123',
   },
   {
     command: 'block ip',
     description: 'Block suspicious IP address',
     category: 'threat',
-    example: 'block ip 192.168.1.100'
-  }
+    example: 'block ip 192.168.1.100',
+  },
 ];
 
 const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
   isMinimized = false,
-  onToggleMinimize
+  onToggleMinimize,
 }) => {
   // const [isOpen, setIsOpen] = useState(false); // Reserved for future modal functionality
   const [input, setInput] = useState('');
@@ -86,14 +86,16 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [showCommands, setShowCommands] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [waveformData, setWaveformData] = useState<number[]>(new Array(20).fill(0));
-  
+  const [waveformData, setWaveformData] = useState<number[]>(
+    new Array(20).fill(0)
+  );
+
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
-  
+
   const { sendMessage, subscribe } = useWebSocket();
 
   useEffect(() => {
@@ -121,10 +123,13 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
     }
 
     // Subscribe to WebSocket messages for contextual responses
-    const unsubscribe = subscribe((message) => {
+    const unsubscribe = subscribe(message => {
       // Handle WebSocket messages that might be relevant to JARVIS
       if (message.type === 'threat_detected') {
-        addJarvisMessage(`New threat detected: ${message.data.threatType}. Risk score: ${message.data.riskScore}`, 'system_alert');
+        addJarvisMessage(
+          `New threat detected: ${message.data.threatType}. Risk score: ${message.data.riskScore}`,
+          'system_alert'
+        );
       }
     });
 
@@ -136,19 +141,28 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const addMessage = (content: string, type: 'user' | 'jarvis', commandType?: string, data?: any) => {
+  const addMessage = (
+    content: string,
+    type: 'user' | 'jarvis',
+    commandType?: string,
+    data?: any
+  ) => {
     const message: ChatMessage = {
       id: `msg_${Date.now()}_${Math.random()}`,
       type,
       content,
       timestamp: new Date(),
       ...(commandType && { commandType }),
-      ...(data && { data })
+      ...(data && { data }),
     };
     setMessages(prev => [...prev, message]);
   };
 
-  const addJarvisMessage = (content: string, commandType?: string, data?: any) => {
+  const addJarvisMessage = (
+    content: string,
+    commandType?: string,
+    data?: any
+  ) => {
     addMessage(content, 'jarvis', commandType, data);
   };
 
@@ -164,14 +178,29 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
     try {
       if (lowerCommand.includes('show threats')) {
         addJarvisMessage(
-          'Displaying current threat dashboard. I\'ve identified 12 active threats in the last hour. 3 critical, 5 high priority, and 4 medium priority threats detected.',
+          "Displaying current threat dashboard. I've identified 12 active threats in the last hour. 3 critical, 5 high priority, and 4 medium priority threats detected.",
           'show_threats',
           {
             threats: [
-              { id: 'T-001', type: 'malware', severity: 'critical', riskScore: 95 },
-              { id: 'T-002', type: 'phishing', severity: 'high', riskScore: 78 },
-              { id: 'T-003', type: 'data_exfiltration', severity: 'critical', riskScore: 92 }
-            ]
+              {
+                id: 'T-001',
+                type: 'malware',
+                severity: 'critical',
+                riskScore: 95,
+              },
+              {
+                id: 'T-002',
+                type: 'phishing',
+                severity: 'high',
+                riskScore: 78,
+              },
+              {
+                id: 'T-003',
+                type: 'data_exfiltration',
+                severity: 'critical',
+                riskScore: 92,
+              },
+            ],
           }
         );
       } else if (lowerCommand.includes('system status')) {
@@ -182,7 +211,7 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
             cpu: 23,
             memory: 45,
             network: 2.3,
-            aiLatency: 8.5
+            aiLatency: 8.5,
           }
         );
       } else if (lowerCommand.includes('analyze threat')) {
@@ -195,7 +224,7 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
             confidence: 0.94,
             classification: 'APT',
             affectedSystems: 3,
-            recommendation: 'immediate_containment'
+            recommendation: 'immediate_containment',
           }
         );
       } else if (lowerCommand.includes('risk assessment')) {
@@ -206,7 +235,7 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
             overallRisk: 67,
             vulnerabilities: 15,
             criticalPatches: 3,
-            posture: 'moderate'
+            posture: 'moderate',
           }
         );
       } else if (lowerCommand.includes('generate report')) {
@@ -216,7 +245,7 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
           {
             events: 47,
             threatsMitigated: 12,
-            uptime: 98.7
+            uptime: 98.7,
           }
         );
       } else if (lowerCommand.includes('block ip')) {
@@ -226,12 +255,12 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
           'block_ip',
           { ip, status: 'blocked' }
         );
-        
+
         // Send command to backend
         sendMessage({
           type: 'security_action',
           action: 'block_ip',
-          target: ip
+          target: ip,
         });
       } else if (lowerCommand.includes('explain decision')) {
         addJarvisMessage(
@@ -241,8 +270,8 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
             factors: [
               { name: 'Network anomaly', importance: 0.34 },
               { name: 'Process behavior', importance: 0.28 },
-              { name: 'Threat intelligence', importance: 0.21 }
-            ]
+              { name: 'Threat intelligence', importance: 0.21 },
+            ],
           }
         );
       } else if (lowerCommand.includes('scan network')) {
@@ -281,7 +310,9 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
   };
 
   const extractNetwork = (command: string) => {
-    const match = command.match(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}\b/);
+    const match = command.match(
+      /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}\b/
+    );
     return match ? match[0] : '192.168.1.0/24';
   };
 
@@ -303,24 +334,30 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
     try {
       setIsListening(true);
       recognitionRef.current.start();
-      
+
       // Start audio visualization
       if (!audioContextRef.current) {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
         audioContextRef.current = new AudioContext();
         const source = audioContextRef.current.createMediaStreamSource(stream);
         analyserRef.current = audioContextRef.current.createAnalyser();
         source.connect(analyserRef.current);
-        
+
         // Start waveform animation
         const updateWaveform = () => {
           if (analyserRef.current && isListening) {
-            const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+            const dataArray = new Uint8Array(
+              analyserRef.current.frequencyBinCount
+            );
             analyserRef.current.getByteFrequencyData(dataArray);
-            
-            const waveform = Array.from(dataArray.slice(0, 20)).map(value => value / 255);
+
+            const waveform = Array.from(dataArray.slice(0, 20)).map(
+              value => value / 255
+            );
             setWaveformData(waveform);
-            
+
             requestAnimationFrame(updateWaveform);
           }
         };
@@ -329,7 +366,10 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
     } catch (error) {
       console.error('Voice input error:', error);
       setIsListening(false);
-      addJarvisMessage('Unable to access microphone. Please check permissions.', 'error');
+      addJarvisMessage(
+        'Unable to access microphone. Please check permissions.',
+        'error'
+      );
     }
   };
 
@@ -345,11 +385,11 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        className="fixed bottom-4 right-4 z-50"
+        className='fixed bottom-4 right-4 z-50'
       >
         <button
           onClick={onToggleMinimize}
-          className="w-16 h-16 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center text-white text-2xl shadow-lg border-2 border-blue-400"
+          className='w-16 h-16 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center text-white text-2xl shadow-lg border-2 border-blue-400'
         >
           🤖
         </button>
@@ -361,36 +401,38 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="fixed bottom-4 right-4 w-96 h-[600px] bg-black border-2 border-green-400 font-mono z-50 flex flex-col"
+      className='fixed bottom-4 right-4 w-96 h-[600px] bg-black border-2 border-green-400 font-mono z-50 flex flex-col'
     >
       {/* Header */}
-      <div className="p-4 border-b border-green-400 bg-gray-900">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
+      <div className='p-4 border-b border-green-400 bg-gray-900'>
+        <div className='flex justify-between items-center'>
+          <div className='flex items-center gap-2'>
             <motion.div
               animate={{ rotate: 360 }}
-              transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
-              className="w-8 h-8 border-2 border-blue-400 rounded-full flex items-center justify-center"
+              transition={{ repeat: Infinity, duration: 8, ease: 'linear' }}
+              className='w-8 h-8 border-2 border-blue-400 rounded-full flex items-center justify-center'
             >
-              <div className="w-4 h-4 bg-blue-400 rounded-full"></div>
+              <div className='w-4 h-4 bg-blue-400 rounded-full'></div>
             </motion.div>
             <div>
-              <h3 className="text-green-400 font-bold">J.A.R.V.I.S.</h3>
-              <p className="text-xs text-gray-400">Just A Rather Very Intelligent System</p>
+              <h3 className='text-green-400 font-bold'>J.A.R.V.I.S.</h3>
+              <p className='text-xs text-gray-400'>
+                Just A Rather Very Intelligent System
+              </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className='flex items-center gap-2'>
             <button
               onClick={() => setShowCommands(!showCommands)}
-              className="text-green-400 hover:text-yellow-400 text-sm"
-              title="Show Commands"
+              className='text-green-400 hover:text-yellow-400 text-sm'
+              title='Show Commands'
             >
               ?
             </button>
             {onToggleMinimize && (
               <button
                 onClick={onToggleMinimize}
-                className="text-green-400 hover:text-red-400"
+                className='text-green-400 hover:text-red-400'
               >
                 −
               </button>
@@ -406,15 +448,17 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
             initial={{ height: 0 }}
             animate={{ height: 'auto' }}
             exit={{ height: 0 }}
-            className="overflow-hidden border-b border-green-400 bg-gray-900"
+            className='overflow-hidden border-b border-green-400 bg-gray-900'
           >
-            <div className="p-3 max-h-32 overflow-y-auto">
-              <div className="text-green-400 text-xs font-bold mb-2">AVAILABLE COMMANDS:</div>
-              <div className="space-y-1">
+            <div className='p-3 max-h-32 overflow-y-auto'>
+              <div className='text-green-400 text-xs font-bold mb-2'>
+                AVAILABLE COMMANDS:
+              </div>
+              <div className='space-y-1'>
                 {JARVIS_COMMANDS.slice(0, 4).map((cmd, index) => (
-                  <div key={index} className="text-xs">
-                    <span className="text-yellow-400">{cmd.command}</span>
-                    <span className="text-gray-400"> - {cmd.description}</span>
+                  <div key={index} className='text-xs'>
+                    <span className='text-yellow-400'>{cmd.command}</span>
+                    <span className='text-gray-400'> - {cmd.description}</span>
                   </div>
                 ))}
               </div>
@@ -424,100 +468,100 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
       </AnimatePresence>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className='flex-1 overflow-y-auto p-4 space-y-3'>
         {messages.length === 0 && (
-          <div className="text-center text-gray-400 text-sm">
+          <div className='text-center text-gray-400 text-sm'>
             <p>Hello! I'm JARVIS, your AI security assistant.</p>
-            <p className="mt-2">Try saying "show threats" or "system status"</p>
+            <p className='mt-2'>Try saying "show threats" or "system status"</p>
           </div>
         )}
-        
-        {messages.map((message) => (
+
+        {messages.map(message => (
           <motion.div
             key={message.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className={`${
-              message.type === 'user' 
-                ? 'text-right' 
-                : 'text-left'
+              message.type === 'user' ? 'text-right' : 'text-left'
             }`}
           >
-            <div className={`inline-block max-w-[80%] p-2 rounded text-sm ${
-              message.type === 'user'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-800 text-green-400 border border-green-400'
-            }`}>
+            <div
+              className={`inline-block max-w-[80%] p-2 rounded text-sm ${
+                message.type === 'user'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-800 text-green-400 border border-green-400'
+              }`}
+            >
               {message.type === 'jarvis' && (
-                <div className="text-blue-400 text-xs mb-1">JARVIS:</div>
+                <div className='text-blue-400 text-xs mb-1'>JARVIS:</div>
               )}
               <div>{message.content}</div>
-              <div className="text-xs opacity-60 mt-1">
+              <div className='text-xs opacity-60 mt-1'>
                 {message.timestamp.toLocaleTimeString()}
               </div>
             </div>
           </motion.div>
         ))}
-        
+
         {isProcessing && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-left"
+            className='text-left'
           >
-            <div className="inline-block bg-gray-800 text-green-400 border border-green-400 p-2 rounded text-sm">
-              <div className="text-blue-400 text-xs mb-1">JARVIS:</div>
-              <div className="flex items-center gap-2">
+            <div className='inline-block bg-gray-800 text-green-400 border border-green-400 p-2 rounded text-sm'>
+              <div className='text-blue-400 text-xs mb-1'>JARVIS:</div>
+              <div className='flex items-center gap-2'>
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ repeat: Infinity, duration: 1 }}
-                  className="w-4 h-4 border border-green-400 border-t-transparent rounded-full"
+                  className='w-4 h-4 border border-green-400 border-t-transparent rounded-full'
                 />
                 Processing your request...
               </div>
             </div>
           </motion.div>
         )}
-        
+
         <div ref={messagesEndRef} />
       </div>
 
       {/* Voice Visualization */}
       {isListening && (
-        <div className="px-4 py-2 border-t border-green-400 bg-gray-900">
-          <div className="flex items-center justify-center gap-1">
+        <div className='px-4 py-2 border-t border-green-400 bg-gray-900'>
+          <div className='flex items-center justify-center gap-1'>
             {waveformData.map((amplitude, index) => (
               <motion.div
                 key={index}
                 animate={{ height: `${Math.max(2, amplitude * 20)}px` }}
-                className="w-1 bg-green-400 rounded"
+                className='w-1 bg-green-400 rounded'
                 transition={{ duration: 0.1 }}
               />
             ))}
           </div>
-          <div className="text-center text-green-400 text-xs mt-1">
+          <div className='text-center text-green-400 text-xs mt-1'>
             Listening... Click to stop
           </div>
         </div>
       )}
 
       {/* Input */}
-      <div className="p-4 border-t border-green-400 bg-gray-900">
-        <form onSubmit={handleSubmit} className="flex gap-2">
+      <div className='p-4 border-t border-green-400 bg-gray-900'>
+        <form onSubmit={handleSubmit} className='flex gap-2'>
           <input
             ref={inputRef}
-            type="text"
+            type='text'
             value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask me anything about security..."
-            className="flex-1 bg-black border border-green-400 text-green-400 px-3 py-2 text-sm focus:outline-none focus:border-yellow-400"
+            onChange={e => setInput(e.target.value)}
+            placeholder='Ask me anything about security...'
+            className='flex-1 bg-black border border-green-400 text-green-400 px-3 py-2 text-sm focus:outline-none focus:border-yellow-400'
             disabled={isProcessing}
           />
           <button
-            type="button"
+            type='button'
             onClick={isListening ? stopVoiceInput : startVoiceInput}
             className={`px-3 py-2 border text-sm font-bold transition-colors ${
-              isListening 
+              isListening
                 ? 'border-red-400 text-red-400 hover:bg-red-400 hover:text-black'
                 : 'border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-black'
             }`}
@@ -526,8 +570,8 @@ const JarvisAssistant: React.FC<JarvisAssistantProps> = ({
             🎤
           </button>
           <button
-            type="submit"
-            className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-bold transition-colors disabled:opacity-50"
+            type='submit'
+            className='px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-bold transition-colors disabled:opacity-50'
             disabled={isProcessing || !input.trim()}
           >
             →

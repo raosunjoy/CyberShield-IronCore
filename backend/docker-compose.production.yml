@@ -18,7 +18,7 @@ services:
       - postgres_primary_data:/var/lib/postgresql/data
       - ./production/sql/init-replication.sql:/docker-entrypoint-initdb.d/init-replication.sql
     ports:
-      - "5432:5432"
+      - '5432:5432'
     command: |
       postgres
       -c wal_level=replica
@@ -28,7 +28,7 @@ services:
     networks:
       - cybershield-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U cybershield"]
+      test: ['CMD-SHELL', 'pg_isready -U cybershield']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -62,11 +62,11 @@ services:
     volumes:
       - redis_master_data:/data
     ports:
-      - "6379:6379"
+      - '6379:6379'
     networks:
       - cybershield-network
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
       interval: 10s
       timeout: 3s
       retries: 5
@@ -93,32 +93,32 @@ services:
       # Database Configuration
       DATABASE_URL: postgresql+asyncpg://cybershield:${POSTGRES_PASSWORD}@postgres-primary:5432/cybershield_production
       DATABASE_REPLICA_URL: postgresql+asyncpg://cybershield:${POSTGRES_PASSWORD}@postgres-replica:5432/cybershield_production
-      
+
       # Redis Configuration
       REDIS_HOST: redis-master
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD}
-      
+
       # Active Directory Configuration
       AD_SERVER: ${AD_SERVER}
       AD_DOMAIN: ${AD_DOMAIN}
       AD_SERVICE_ACCOUNT: ${AD_SERVICE_ACCOUNT}
       AD_SERVICE_PASSWORD: ${AD_SERVICE_PASSWORD}
-      
+
       # SAML Configuration
       SAML_CERT_PATH: /etc/ssl/saml/cybershield.crt
       SAML_KEY_PATH: /etc/ssl/saml/cybershield.key
       SAML_ISSUER: https://cybershield-ironcore.com
-      
+
       # External Services
       TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
       TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
-      
+
       # Security
       JWT_SECRET: ${JWT_SECRET}
       ENCRYPTION_KEY: ${ENCRYPTION_KEY}
-      
+
       # Environment
       ENVIRONMENT: production
       LOG_LEVEL: INFO
@@ -126,7 +126,7 @@ services:
       - ./production/ssl/saml:/etc/ssl/saml:ro
       - ./production/ssl/certs:/etc/ssl/certs:ro
     ports:
-      - "8000:8000"
+      - '8000:8000'
     depends_on:
       postgres-primary:
         condition: service_healthy
@@ -135,7 +135,7 @@ services:
     networks:
       - cybershield-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -148,8 +148,8 @@ services:
       - ./production/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./production/ssl/letsencrypt:/etc/letsencrypt:ro
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     depends_on:
       - cybershield-backend
     networks:
@@ -163,7 +163,7 @@ services:
       - ./production/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     ports:
-      - "9090:9090"
+      - '9090:9090'
     networks:
       - cybershield-network
 
@@ -173,12 +173,12 @@ services:
     container_name: cybershield-elasticsearch
     environment:
       - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
       - xpack.security.enabled=false
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
     ports:
-      - "9200:9200"
+      - '9200:9200'
     networks:
       - cybershield-network
 
@@ -198,7 +198,7 @@ services:
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
     ports:
-      - "5601:5601"
+      - '5601:5601'
     depends_on:
       - elasticsearch
     networks:

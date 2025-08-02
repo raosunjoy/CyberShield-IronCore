@@ -1,9 +1,21 @@
-"use client";
+'use client';
 
-import React, { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  ReactNode,
+} from 'react';
 
 interface WebSocketMessage {
-  type: 'threat_detected' | 'risk_update' | 'system_status' | 'ai_analysis' | 'heartbeat';
+  type:
+    | 'threat_detected'
+    | 'risk_update'
+    | 'system_status'
+    | 'ai_analysis'
+    | 'heartbeat';
   timestamp: string;
   data: any;
   id?: string;
@@ -32,19 +44,29 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   children,
   wsUrl = process.env['NEXT_PUBLIC_WS_URL'] || 'ws://localhost:8080/ws',
   reconnectInterval = 3000,
-  maxReconnectAttempts = 10
+  maxReconnectAttempts = 10,
 }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null);
-  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('disconnected');
+  const [connectionStatus, setConnectionStatus] = useState<
+    'connecting' | 'connected' | 'disconnected' | 'error'
+  >('disconnected');
   const [threatCount, setThreatCount] = useState(0);
-  const [systemHealth, setSystemHealth] = useState<'healthy' | 'warning' | 'critical'>('healthy');
+  const [systemHealth, setSystemHealth] = useState<
+    'healthy' | 'warning' | 'critical'
+  >('healthy');
 
   const wsRef = useRef<WebSocket | null>(null);
-  const subscribersRef = useRef<Set<(message: WebSocketMessage) => void>>(new Set());
+  const subscribersRef = useRef<Set<(message: WebSocketMessage) => void>>(
+    new Set()
+  );
   const reconnectAttemptsRef = useRef(0);
-  const heartbeatIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const heartbeatIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
   const connect = () => {
     if (wsRef.current?.readyState === WebSocket.CONNECTING) {
@@ -52,39 +74,39 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     }
 
     setConnectionStatus('connecting');
-    
+
     try {
       wsRef.current = new WebSocket(wsUrl);
-      
+
       wsRef.current.onopen = () => {
         console.log('✅ WebSocket connected to CyberShield');
         setIsConnected(true);
         setConnectionStatus('connected');
         reconnectAttemptsRef.current = 0;
-        
+
         // Start heartbeat
         startHeartbeat();
-        
+
         // Send initial connection message
         const initMessage = {
           type: 'client_connect',
           timestamp: new Date().toISOString(),
           data: {
             client_type: 'cybershield_frontend',
-            version: '1.0.0'
-          }
+            version: '1.0.0',
+          },
         };
         wsRef.current?.send(JSON.stringify(initMessage));
       };
 
-      wsRef.current.onmessage = (event) => {
+      wsRef.current.onmessage = event => {
         try {
           const message: WebSocketMessage = JSON.parse(event.data);
           setLastMessage(message);
-          
+
           // Handle different message types
           handleMessage(message);
-          
+
           // Notify all subscribers
           subscribersRef.current.forEach(callback => {
             try {
@@ -103,12 +125,14 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         setIsConnected(false);
         setConnectionStatus('disconnected');
         stopHeartbeat();
-        
+
         // Attempt to reconnect
         if (reconnectAttemptsRef.current < maxReconnectAttempts) {
           reconnectAttemptsRef.current++;
-          console.log(`🔄 Attempting to reconnect (${reconnectAttemptsRef.current}/${maxReconnectAttempts})...`);
-          
+          console.log(
+            `🔄 Attempting to reconnect (${reconnectAttemptsRef.current}/${maxReconnectAttempts})...`
+          );
+
           reconnectTimeoutRef.current = setTimeout(() => {
             connect();
           }, reconnectInterval);
@@ -118,7 +142,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         }
       };
 
-      wsRef.current.onerror = (error) => {
+      wsRef.current.onerror = error => {
         console.error('❌ WebSocket error:', error);
         setConnectionStatus('error');
       };
@@ -132,14 +156,14 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
     }
-    
+
     stopHeartbeat();
-    
+
     if (wsRef.current) {
       wsRef.current.close();
       wsRef.current = null;
     }
-    
+
     setIsConnected(false);
     setConnectionStatus('disconnected');
   };
@@ -150,7 +174,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         const heartbeat = {
           type: 'heartbeat',
           timestamp: new Date().toISOString(),
-          data: { client_id: 'cybershield_frontend' }
+          data: { client_id: 'cybershield_frontend' },
         };
         wsRef.current.send(JSON.stringify(heartbeat));
       }
@@ -171,7 +195,10 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         // Update system health based on threat severity
         if (message.data.severity === 'critical') {
           setSystemHealth('critical');
-        } else if (message.data.severity === 'high' && systemHealth === 'healthy') {
+        } else if (
+          message.data.severity === 'high' &&
+          systemHealth === 'healthy'
+        ) {
           setSystemHealth('warning');
         }
         break;
@@ -201,7 +228,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       const wsMessage = {
         ...message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
       wsRef.current.send(JSON.stringify(wsMessage));
     } else {
@@ -211,7 +238,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 
   const subscribe = (callback: (message: WebSocketMessage) => void) => {
     subscribersRef.current.add(callback);
-    
+
     // Return unsubscribe function
     return () => {
       subscribersRef.current.delete(callback);
@@ -220,7 +247,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 
   useEffect(() => {
     connect();
-    
+
     // Cleanup on unmount
     return () => {
       disconnect();
@@ -246,7 +273,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     sendMessage,
     subscribe,
     threatCount,
-    systemHealth
+    systemHealth,
   };
 
   return (
@@ -273,7 +300,7 @@ export const useWebSocketSubscription = (
   const { subscribe } = useWebSocket();
 
   useEffect(() => {
-    const unsubscribe = subscribe((message) => {
+    const unsubscribe = subscribe(message => {
       if (message.type === messageType) {
         callback(message.data);
       }
@@ -286,7 +313,7 @@ export const useWebSocketSubscription = (
 // Mock WebSocket server simulation for development
 export const createMockWebSocketServer = () => {
   const clients = new Set<(message: WebSocketMessage) => void>();
-  
+
   const addClient = (callback: (message: WebSocketMessage) => void) => {
     clients.add(callback);
     return () => clients.delete(callback);
@@ -297,30 +324,39 @@ export const createMockWebSocketServer = () => {
   };
 
   // Simulate threat detection events
-  setInterval(() => {
-    const threatTypes = ['malware', 'phishing', 'data_exfiltration', 'privilege_escalation'];
-    const severities = ['low', 'medium', 'high', 'critical'];
-    
-    const mockThreat = {
-      type: 'threat_detected' as const,
-      timestamp: new Date().toISOString(),
-      data: {
-        id: `threat_${Date.now()}`,
-        threatType: threatTypes[Math.floor(Math.random() * threatTypes.length)],
-        severity: severities[Math.floor(Math.random() * severities.length)],
-        riskScore: Math.floor(Math.random() * 100),
-        source: `192.168.1.${Math.floor(Math.random() * 255)}`,
-        confidence: Math.random()
-      }
-    };
+  setInterval(
+    () => {
+      const threatTypes = [
+        'malware',
+        'phishing',
+        'data_exfiltration',
+        'privilege_escalation',
+      ];
+      const severities = ['low', 'medium', 'high', 'critical'];
 
-    broadcast(mockThreat);
-  }, Math.random() * 10000 + 5000); // Random interval between 5-15 seconds
+      const mockThreat = {
+        type: 'threat_detected' as const,
+        timestamp: new Date().toISOString(),
+        data: {
+          id: `threat_${Date.now()}`,
+          threatType:
+            threatTypes[Math.floor(Math.random() * threatTypes.length)],
+          severity: severities[Math.floor(Math.random() * severities.length)],
+          riskScore: Math.floor(Math.random() * 100),
+          source: `192.168.1.${Math.floor(Math.random() * 255)}`,
+          confidence: Math.random(),
+        },
+      };
+
+      broadcast(mockThreat);
+    },
+    Math.random() * 10000 + 5000
+  ); // Random interval between 5-15 seconds
 
   // Simulate system status updates
   setInterval(() => {
     const healths = ['healthy', 'warning', 'critical'];
-    
+
     const mockStatus = {
       type: 'system_status' as const,
       timestamp: new Date().toISOString(),
@@ -328,8 +364,8 @@ export const createMockWebSocketServer = () => {
         health: healths[Math.floor(Math.random() * healths.length)],
         cpu_usage: Math.random() * 100,
         memory_usage: Math.random() * 100,
-        active_threats: Math.floor(Math.random() * 50)
-      }
+        active_threats: Math.floor(Math.random() * 50),
+      },
     };
 
     broadcast(mockStatus);

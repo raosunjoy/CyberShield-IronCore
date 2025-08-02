@@ -24,7 +24,7 @@ from app.api.v1.endpoints import (
     threats,
     users,
 )
-from app.api.v1 import billing
+from app.api.v1 import billing, siem
 
 api_router = APIRouter()
 
@@ -95,4 +95,11 @@ api_router.include_router(
 api_router.include_router(
     billing.router,
     tags=["Billing & Subscriptions"],
+)
+
+# SIEM Integration Connectors
+api_router.include_router(
+    siem.router,
+    prefix="/siem",
+    tags=["SIEM Integration"],
 )

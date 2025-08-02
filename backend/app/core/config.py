@@ -12,7 +12,6 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import (
     AnyHttpUrl,
-    BaseSettings,
     EmailStr,
     Field,
     HttpUrl,
@@ -20,6 +19,7 @@ from pydantic import (
     RedisDsn,
     validator,
 )
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "CyberShield-IronCore"
     VERSION: str = "1.0.0"
     DESCRIPTION: str = "Enterprise AI-Powered Cyber Risk Management Platform"
-    ENVIRONMENT: str = Field(default="development", regex="^(development|staging|production)$")
+    ENVIRONMENT: str = Field(default="development", pattern="^(development|staging|production)$")
     DEBUG: bool = Field(default=False)
     
     # API Configuration
@@ -72,14 +72,14 @@ class Settings(BaseSettings):
         """Assemble database URI from individual components."""
         if isinstance(v, str):
             return v
-        return PostgresDsn.build(
-            scheme="postgresql+asyncpg",
-            user=values.get("DATABASE_USER"),
-            password=values.get("DATABASE_PASSWORD"),
-            host=values.get("DATABASE_HOSTNAME"),
-            port=str(values.get("DATABASE_PORT")),
-            path=f"/{values.get('DATABASE_DB') or ''}",
-        )
+        
+        user = values.get("DATABASE_USER")
+        password = values.get("DATABASE_PASSWORD")
+        host = values.get("DATABASE_HOSTNAME")
+        port = values.get("DATABASE_PORT")
+        db = values.get("DATABASE_DB")
+        
+        return f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{db}"
     
     # Database Pool Configuration for Enterprise Scale
     DATABASE_POOL_SIZE: int = Field(default=20, ge=1, le=100)
@@ -101,9 +101,14 @@ class Settings(BaseSettings):
             return v
         
         password = values.get("REDIS_PASSWORD")
-        auth_part = f":{password}@" if password else ""
+        host = values.get("REDIS_HOSTNAME")
+        port = values.get("REDIS_PORT")
+        db = values.get("REDIS_DB")
         
-        return f"redis://{auth_part}{values.get('REDIS_HOSTNAME')}:{values.get('REDIS_PORT')}/{values.get('REDIS_DB')}"
+        if password:
+            return f"redis://:{password}@{host}:{port}/{db}"
+        else:
+            return f"redis://{host}:{port}/{db}"
     
     # Redis Performance Configuration
     REDIS_POOL_SIZE: int = Field(default=20, ge=1, le=100)
@@ -134,7 +139,7 @@ class Settings(BaseSettings):
     KAFKA_CONSUMER_GROUP_ID: str = "cybershield-ironcore"
     KAFKA_BATCH_SIZE: int = Field(default=1000, ge=1, le=10000)
     KAFKA_LINGER_MS: int = Field(default=100, ge=0, le=1000)
-    KAFKA_COMPRESSION_TYPE: str = Field(default="snappy", regex="^(none|gzip|snappy|lz4|zstd)$")
+    KAFKA_COMPRESSION_TYPE: str = Field(default="snappy", pattern="^(none|gzip|snappy|lz4|zstd)$")
     KAFKA_RETRIES: int = Field(default=3, ge=0, le=10)
     KAFKA_REQUEST_TIMEOUT_MS: int = Field(default=30000, ge=1000, le=300000)
     
@@ -180,8 +185,8 @@ class Settings(BaseSettings):
     PROMETHEUS_METRICS_PATH: str = "/metrics"
     
     # Logging Configuration
-    LOG_LEVEL: str = Field(default="INFO", regex="^(CRITICAL|ERROR|WARNING|INFO|DEBUG)$")
-    LOG_FORMAT: str = Field(default="json", regex="^(json|text)$")
+    LOG_LEVEL: str = Field(default="INFO", pattern="^(CRITICAL|ERROR|WARNING|INFO|DEBUG)$")
+    LOG_FORMAT: str = Field(default="json", pattern="^(json|text)$")
     LOG_FILE: Optional[str] = None
     LOG_ROTATION: str = Field(default="1 day")
     LOG_RETENTION: str = Field(default="30 days")
@@ -268,19 +273,28 @@ class Settings(BaseSettings):
     SESSION_COOKIE_SAMESITE: str = "strict"
     SESSION_MAX_AGE: int = Field(default=3600, ge=300, le=86400)  # 1 hour
     
-    class Config:
-        """Pydantic configuration."""
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = True
-        validate_assignment = True
-        
-        # Field aliases for environment variables
-        fields = {
-            "DATABASE_URI": {"env": ["DATABASE_URL", "DATABASE_URI"]},
-            "REDIS_URI": {"env": ["REDIS_URL", "REDIS_URI"]},
-            "SECRET_KEY": {"env": ["SECRET_KEY", "APP_SECRET_KEY"]},
-        }
+    # Stripe Payment Configuration
+    STRIPE_PUBLISHABLE_KEY: Optional[str] = None
+    STRIPE_SECRET_KEY: Optional[str] = None
+    STRIPE_WEBHOOK_SECRET: Optional[str] = None
+    
+    # Stripe Price IDs for each plan (set via environment variables)
+    STRIPE_STARTER_PRICE_ID: Optional[str] = None
+    STRIPE_PROFESSIONAL_PRICE_ID: Optional[str] = None  
+    STRIPE_ENTERPRISE_PRICE_ID: Optional[str] = None
+    STRIPE_ENTERPRISE_PLUS_PRICE_ID: Optional[str] = None
+    
+    # Stripe Configuration
+    STRIPE_API_VERSION: str = "2023-10-16"
+    STRIPE_TIMEOUT: int = Field(default=30, ge=5, le=120)
+    STRIPE_MAX_RETRIES: int = Field(default=3, ge=0, le=5)
+    
+    model_config = {
+        "env_file": ".env",
+        "env_file_encoding": "utf-8",
+        "case_sensitive": True,
+        "validate_assignment": True,
+    }
 
 
 @lru_cache()

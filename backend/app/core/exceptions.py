@@ -357,3 +357,165 @@ class RollbackError(MitigationError):
                 "error_type": error_type
             }
         )
+
+
+# Billing and Payment Exceptions
+
+class BillingError(CyberShieldException):
+    """Base class for billing-related exceptions"""
+    pass
+
+
+class StripeError(BillingError):
+    """Raised when Stripe API operations fail"""
+    
+    def __init__(
+        self,
+        message: str,
+        stripe_error_code: Optional[str] = None,
+        stripe_error_type: Optional[str] = None
+    ):
+        self.stripe_error_code = stripe_error_code
+        self.stripe_error_type = stripe_error_type
+        
+        super().__init__(
+            message=message,
+            error_code="STRIPE_ERROR",
+            details={
+                "stripe_error_code": stripe_error_code,
+                "stripe_error_type": stripe_error_type
+            }
+        )
+
+
+class CustomerNotFoundError(BillingError):
+    """Raised when a customer is not found"""
+    
+    def __init__(self, identifier: str, message: Optional[str] = None):
+        self.identifier = identifier
+        message = message or f"Customer {identifier} not found"
+        
+        super().__init__(
+            message=message,
+            error_code="CUSTOMER_NOT_FOUND",
+            details={"identifier": identifier}
+        )
+
+
+class SubscriptionNotFoundError(BillingError):
+    """Raised when a subscription is not found"""
+    
+    def __init__(self, identifier: str, message: Optional[str] = None):
+        self.identifier = identifier
+        message = message or f"Subscription {identifier} not found"
+        
+        super().__init__(
+            message=message,
+            error_code="SUBSCRIPTION_NOT_FOUND",
+            details={"identifier": identifier}
+        )
+
+
+class PaymentFailedError(BillingError):
+    """Raised when a payment fails"""
+    
+    def __init__(
+        self,
+        payment_intent_id: str,
+        failure_reason: str,
+        message: Optional[str] = None
+    ):
+        self.payment_intent_id = payment_intent_id
+        self.failure_reason = failure_reason
+        
+        message = message or f"Payment {payment_intent_id} failed: {failure_reason}"
+        
+        super().__init__(
+            message=message,
+            error_code="PAYMENT_FAILED",
+            details={
+                "payment_intent_id": payment_intent_id,
+                "failure_reason": failure_reason
+            }
+        )
+
+
+class PlanLimitExceededError(BillingError):
+    """Raised when tenant exceeds plan limits"""
+    
+    def __init__(
+        self,
+        tenant_id: UUID,
+        resource_type: str,
+        current_usage: int,
+        limit: int,
+        message: Optional[str] = None
+    ):
+        self.tenant_id = tenant_id
+        self.resource_type = resource_type
+        self.current_usage = current_usage
+        self.limit = limit
+        
+        message = message or (
+            f"Tenant {tenant_id} exceeded {resource_type} limit: "
+            f"{current_usage}/{limit}"
+        )
+        
+        super().__init__(
+            message=message,
+            error_code="PLAN_LIMIT_EXCEEDED",
+            details={
+                "tenant_id": str(tenant_id),
+                "resource_type": resource_type,
+                "current_usage": current_usage,
+                "limit": limit
+            }
+        )
+
+
+class InvoiceError(BillingError):
+    """Raised when invoice operations fail"""
+    
+    def __init__(
+        self,
+        invoice_id: str,
+        operation: str,
+        message: Optional[str] = None
+    ):
+        self.invoice_id = invoice_id
+        self.operation = operation
+        
+        message = message or f"Invoice {operation} failed for {invoice_id}"
+        
+        super().__init__(
+            message=message,
+            error_code="INVOICE_ERROR",
+            details={
+                "invoice_id": invoice_id,
+                "operation": operation
+            }
+        )
+
+
+class UsageBillingError(BillingError):
+    """Raised when usage billing operations fail"""
+    
+    def __init__(
+        self,
+        tenant_id: UUID,
+        usage_type: str,
+        message: Optional[str] = None
+    ):
+        self.tenant_id = tenant_id
+        self.usage_type = usage_type
+        
+        message = message or f"Usage billing failed for tenant {tenant_id}: {usage_type}"
+        
+        super().__init__(
+            message=message,
+            error_code="USAGE_BILLING_ERROR",
+            details={
+                "tenant_id": str(tenant_id),
+                "usage_type": usage_type
+            }
+        )

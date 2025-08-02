@@ -24,6 +24,7 @@ from app.api.v1.endpoints import (
     threats,
     users,
 )
+from app.api.v1 import billing
 
 api_router = APIRouter()
 
@@ -88,4 +89,10 @@ api_router.include_router(
     dashboard.router,
     prefix="/dashboard",
     tags=["Executive Dashboard"],
+)
+
+# SaaS Billing and Subscription Management
+api_router.include_router(
+    billing.router,
+    tags=["Billing & Subscriptions"],
 )

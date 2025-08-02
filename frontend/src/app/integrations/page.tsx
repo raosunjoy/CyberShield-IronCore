@@ -531,6 +531,7 @@ export default function IntegrationsManagement() {
       case 'delete':
         // eslint-disable-next-line no-alert
         if (
+          // eslint-disable-next-line no-alert
           window.confirm('Are you sure you want to delete this integration?')
         ) {
           setIntegrations(prev => prev.filter(i => i.id !== integration.id));

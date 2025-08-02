@@ -503,6 +503,7 @@ export default function UserManagement() {
                         onClick={() => {
                           // eslint-disable-next-line no-alert
                           if (
+                            // eslint-disable-next-line no-alert
                             window.confirm(
                               'Are you sure you want to delete this role?'
                             )

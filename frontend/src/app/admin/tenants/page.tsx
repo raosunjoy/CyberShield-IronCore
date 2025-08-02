@@ -260,6 +260,7 @@ export default function TenantManagement() {
       case 'delete':
         // eslint-disable-next-line no-alert
         if (
+          // eslint-disable-next-line no-alert
           window.confirm(
             'Are you sure you want to delete this tenant? This action cannot be undone.'
           )

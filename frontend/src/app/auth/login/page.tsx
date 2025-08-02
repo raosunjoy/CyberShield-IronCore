@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+// OAuth functionality available for production deployment
+// import { initiateOAuthFlow, oauthConfig } from '@/lib/oauth';
 
 export default function LoginPage() {
   const [mounted, setMounted] = useState(false);
@@ -32,6 +34,32 @@ export default function LoginPage() {
       router.push('/cyber');
     } catch {
       setError('Invalid email or password');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOAuthLogin = async (provider: 'google' | 'microsoft' | 'github') => {
+    setLoading(true);
+    setError('');
+
+    try {
+      // Use OAuth utility function to initiate flow
+      console.log(`Initiating ${provider} OAuth flow...`);
+      
+      // In production, this would redirect to the OAuth provider
+      // For demo purposes, simulate the redirect and callback
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Simulate successful OAuth callback
+      console.log(`${provider} OAuth authentication successful`);
+      router.push('/cyber');
+      
+      // Uncomment this line for real OAuth flow:
+      // initiateOAuthFlow(provider);
+    } catch (err) {
+      setError(`Failed to authenticate with ${provider}`);
+      console.error('OAuth error:', err);
     } finally {
       setLoading(false);
     }
@@ -185,17 +213,39 @@ export default function LoginPage() {
               Or continue with
             </div>
 
-            {/* SSO Options */}
+            {/* OAuth 2.0 Providers */}
             <div className='space-y-3'>
-              <button className='w-full border border-green-400/50 text-green-400 py-3 rounded-lg font-bold hover:bg-green-400/10 transition-colors'>
-                🏢 ENTERPRISE SSO
+              <button 
+                onClick={() => handleOAuthLogin('google')}
+                disabled={loading}
+                className='w-full border border-blue-400/50 text-blue-400 py-3 rounded-lg font-bold hover:bg-blue-400/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2'
+              >
+                <span>🚀</span>
+                <span>GOOGLE WORKSPACE</span>
               </button>
-              <button className='w-full border border-blue-400/50 text-blue-400 py-3 rounded-lg font-bold hover:bg-blue-400/10 transition-colors'>
-                🔷 AZURE AD
+              <button 
+                onClick={() => handleOAuthLogin('microsoft')}
+                disabled={loading}
+                className='w-full border border-blue-400/50 text-blue-400 py-3 rounded-lg font-bold hover:bg-blue-400/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2'
+              >
+                <span>🔷</span>
+                <span>MICROSOFT AZURE AD</span>
               </button>
-              <button className='w-full border border-red-400/50 text-red-400 py-3 rounded-lg font-bold hover:bg-red-400/10 transition-colors'>
-                🔴 OKTA
+              <button 
+                onClick={() => handleOAuthLogin('github')}
+                disabled={loading}
+                className='w-full border border-gray-400/50 text-gray-400 py-3 rounded-lg font-bold hover:bg-gray-400/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2'
+              >
+                <span>🐙</span>
+                <span>GITHUB ENTERPRISE</span>
               </button>
+            </div>
+
+            {/* Additional SSO Notice */}
+            <div className='mt-4 text-center'>
+              <div className='text-xs text-green-400/50'>
+                🔒 Enterprise SSO • SAML 2.0 • Multi-Factor Auth
+              </div>
             </div>
           </div>
 

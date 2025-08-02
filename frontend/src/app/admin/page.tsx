@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import OAuthProviderManager from '@/components/auth/OAuthProviderManager';
 
 interface SystemStats {
   totalUsers: number;
@@ -32,6 +33,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<SystemStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('24h');
+  const [activeTab, setActiveTab] = useState<'overview' | 'oauth'>('overview');
 
   useEffect(() => {
     setMounted(true);
@@ -237,7 +239,34 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {stats && (
+        {/* Navigation Tabs */}
+        <div className="border-b border-green-400/30 mb-8">
+          <nav className="flex space-x-8">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'overview'
+                  ? 'border-green-400 text-green-400'
+                  : 'border-transparent text-green-400/70 hover:text-green-400'
+              }`}
+            >
+              📊 System Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('oauth')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'oauth'
+                  ? 'border-green-400 text-green-400'
+                  : 'border-transparent text-green-400/70 hover:text-green-400'
+              }`}
+            >
+              🔐 OAuth Providers
+            </button>
+          </nav>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'overview' && stats && (
           <>
             {/* Key Metrics */}
             <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
@@ -499,6 +528,11 @@ export default function AdminDashboard() {
               </div>
             </div>
           </>
+        )}
+
+        {/* OAuth Providers Tab */}
+        {activeTab === 'oauth' && (
+          <OAuthProviderManager />
         )}
       </div>
     </div>

@@ -6,30 +6,30 @@
 // Backend UserRoleEnum mapping
 export enum UserRole {
   // Executive Roles
-  SUPER_ADMIN = "super_admin",
-  ADMIN = "admin",
-  
+  SUPER_ADMIN = 'super_admin',
+  ADMIN = 'admin',
+
   // Security Team Roles
-  SECURITY_MANAGER = "security_manager",
-  SECURITY_ANALYST = "security_analyst",
-  SOC_ANALYST = "soc_analyst",
-  INCIDENT_RESPONDER = "incident_responder",
-  
+  SECURITY_MANAGER = 'security_manager',
+  SECURITY_ANALYST = 'security_analyst',
+  SOC_ANALYST = 'soc_analyst',
+  INCIDENT_RESPONDER = 'incident_responder',
+
   // Compliance Roles
-  COMPLIANCE_OFFICER = "compliance_officer",
-  AUDITOR = "auditor",
-  
+  COMPLIANCE_OFFICER = 'compliance_officer',
+  AUDITOR = 'auditor',
+
   // Business Roles
-  RISK_MANAGER = "risk_manager",
-  BUSINESS_USER = "business_user",
-  
+  RISK_MANAGER = 'risk_manager',
+  BUSINESS_USER = 'business_user',
+
   // Technical Roles
-  SYSTEM_INTEGRATOR = "system_integrator",
-  API_USER = "api_user",
-  
+  SYSTEM_INTEGRATOR = 'system_integrator',
+  API_USER = 'api_user',
+
   // Read-only Roles
-  VIEWER = "viewer",
-  GUEST = "guest"
+  VIEWER = 'viewer',
+  GUEST = 'guest',
 }
 
 export interface RoleConfig {
@@ -38,9 +38,19 @@ export interface RoleConfig {
   displayName: string;
   level: 'executive' | 'manager' | 'analyst' | 'specialist' | 'user' | 'viewer';
   permissions: string[];
-  dashboardType: 'executive' | 'security_manager' | 'security_analyst' | 'soc_analyst' | 
-                 'incident_responder' | 'compliance' | 'risk_manager' | 'business' | 
-                 'technical' | 'api' | 'viewer' | 'guest';
+  dashboardType:
+    | 'executive'
+    | 'security_manager'
+    | 'security_analyst'
+    | 'soc_analyst'
+    | 'incident_responder'
+    | 'compliance'
+    | 'risk_manager'
+    | 'business'
+    | 'technical'
+    | 'api'
+    | 'viewer'
+    | 'guest';
   features: string[];
   restrictions: string[];
 }
@@ -63,9 +73,9 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
       'audit_trails',
       'system_configuration',
       'multi_tenant_management',
-      'enterprise_controls'
+      'enterprise_controls',
     ],
-    restrictions: []
+    restrictions: [],
   },
   [UserRole.ADMIN]: {
     id: 'admin',
@@ -74,8 +84,14 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     level: 'executive',
     dashboardType: 'executive',
     permissions: [
-      'user.*', 'threat.*', 'alert.*', 'risk.*', 'compliance.*', 
-      'dashboard.*', 'system.read', 'system.config'
+      'user.*',
+      'threat.*',
+      'alert.*',
+      'risk.*',
+      'compliance.*',
+      'dashboard.*',
+      'system.read',
+      'system.config',
     ],
     features: [
       'user_management',
@@ -83,9 +99,9 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
       'system_oversight',
       'compliance_monitoring',
       'reporting',
-      'configuration_management'
+      'configuration_management',
     ],
-    restrictions: ['system.delete', 'tenant.delete']
+    restrictions: ['system.delete', 'tenant.delete'],
   },
   [UserRole.SECURITY_MANAGER]: {
     id: 'security_manager',
@@ -94,8 +110,14 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     level: 'manager',
     dashboardType: 'security_manager',
     permissions: [
-      'user.read', 'threat.*', 'alert.*', 'risk.*', 
-      'mitigation.*', 'compliance.read', 'dashboard.*', 'team.manage'
+      'user.read',
+      'threat.*',
+      'alert.*',
+      'risk.*',
+      'mitigation.*',
+      'compliance.read',
+      'dashboard.*',
+      'team.manage',
     ],
     features: [
       'team_management',
@@ -104,9 +126,9 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
       'risk_assessment',
       'performance_monitoring',
       'resource_allocation',
-      'strategic_planning'
+      'strategic_planning',
     ],
-    restrictions: ['user.delete', 'system.*']
+    restrictions: ['user.delete', 'system.*'],
   },
   [UserRole.SECURITY_ANALYST]: {
     id: 'security_analyst',
@@ -115,8 +137,13 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     level: 'analyst',
     dashboardType: 'security_analyst',
     permissions: [
-      'threat.*', 'alert.*', 'risk.read', 'intelligence.*', 
-      'dashboard.read', 'investigation.*', 'mitigation.create'
+      'threat.*',
+      'alert.*',
+      'risk.read',
+      'intelligence.*',
+      'dashboard.read',
+      'investigation.*',
+      'mitigation.create',
     ],
     features: [
       'threat_analysis',
@@ -125,9 +152,9 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
       'vulnerability_assessment',
       'forensic_analysis',
       'report_generation',
-      'tool_utilization'
+      'tool_utilization',
     ],
-    restrictions: ['user.*', 'system.*', 'compliance.*']
+    restrictions: ['user.*', 'system.*', 'compliance.*'],
   },
   [UserRole.SOC_ANALYST]: {
     id: 'soc_analyst',
@@ -136,8 +163,12 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     level: 'analyst',
     dashboardType: 'soc_analyst',
     permissions: [
-      'alert.*', 'threat.read', 'intelligence.read', 
-      'dashboard.read', 'monitoring.*', 'escalation.*'
+      'alert.*',
+      'threat.read',
+      'intelligence.read',
+      'dashboard.read',
+      'monitoring.*',
+      'escalation.*',
     ],
     features: [
       'real_time_monitoring',
@@ -146,9 +177,9 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
       'shift_handover',
       'siem_management',
       'threat_detection',
-      'incident_logging'
+      'incident_logging',
     ],
-    restrictions: ['user.*', 'system.*', 'threat.delete']
+    restrictions: ['user.*', 'system.*', 'threat.delete'],
   },
   [UserRole.INCIDENT_RESPONDER]: {
     id: 'incident_responder',
@@ -157,8 +188,13 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     level: 'specialist',
     dashboardType: 'incident_responder',
     permissions: [
-      'alert.read', 'alert.update', 'threat.read', 
-      'mitigation.*', 'dashboard.read', 'response.*', 'containment.*'
+      'alert.read',
+      'alert.update',
+      'threat.read',
+      'mitigation.*',
+      'dashboard.read',
+      'response.*',
+      'containment.*',
     ],
     features: [
       'incident_response',
@@ -167,9 +203,9 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
       'communication_coordination',
       'recovery_procedures',
       'post_incident_analysis',
-      'playbook_execution'
+      'playbook_execution',
     ],
-    restrictions: ['user.*', 'system.*', 'threat.create']
+    restrictions: ['user.*', 'system.*', 'threat.create'],
   },
   [UserRole.COMPLIANCE_OFFICER]: {
     id: 'compliance_officer',
@@ -178,8 +214,13 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     level: 'specialist',
     dashboardType: 'compliance',
     permissions: [
-      'compliance.*', 'audit.*', 'risk.read', 'dashboard.read',
-      'regulatory.*', 'policy.*', 'assessment.*'
+      'compliance.*',
+      'audit.*',
+      'risk.read',
+      'dashboard.read',
+      'regulatory.*',
+      'policy.*',
+      'assessment.*',
     ],
     features: [
       'regulatory_compliance',
@@ -188,9 +229,9 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
       'audit_coordination',
       'regulatory_reporting',
       'risk_evaluation',
-      'training_oversight'
+      'training_oversight',
     ],
-    restrictions: ['threat.*', 'system.*', 'user.delete']
+    restrictions: ['threat.*', 'system.*', 'user.delete'],
   },
   [UserRole.AUDITOR]: {
     id: 'auditor',
@@ -199,8 +240,12 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     level: 'specialist',
     dashboardType: 'compliance',
     permissions: [
-      'audit.read', 'compliance.read', 'user.read', 
-      'dashboard.read', 'log.read', 'trail.*'
+      'audit.read',
+      'compliance.read',
+      'user.read',
+      'dashboard.read',
+      'log.read',
+      'trail.*',
     ],
     features: [
       'audit_trail_review',
@@ -209,9 +254,9 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
       'audit_reporting',
       'control_testing',
       'documentation_review',
-      'independence_verification'
+      'independence_verification',
     ],
-    restrictions: ['*.create', '*.update', '*.delete', 'system.*']
+    restrictions: ['*.create', '*.update', '*.delete', 'system.*'],
   },
   [UserRole.RISK_MANAGER]: {
     id: 'risk_manager',
@@ -220,8 +265,12 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     level: 'manager',
     dashboardType: 'risk_manager',
     permissions: [
-      'risk.*', 'compliance.read', 'dashboard.read',
-      'assessment.*', 'mitigation.read', 'reporting.*'
+      'risk.*',
+      'compliance.read',
+      'dashboard.read',
+      'assessment.*',
+      'mitigation.read',
+      'reporting.*',
     ],
     features: [
       'risk_assessment',
@@ -230,9 +279,9 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
       'risk_reporting',
       'strategic_risk_analysis',
       'quantitative_analysis',
-      'risk_communication'
+      'risk_communication',
     ],
-    restrictions: ['threat.*', 'system.*', 'user.*']
+    restrictions: ['threat.*', 'system.*', 'user.*'],
   },
   [UserRole.BUSINESS_USER]: {
     id: 'business_user',
@@ -241,8 +290,11 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     level: 'user',
     dashboardType: 'business',
     permissions: [
-      'dashboard.read', 'risk.read', 'compliance.read',
-      'report.read', 'notification.read'
+      'dashboard.read',
+      'risk.read',
+      'compliance.read',
+      'report.read',
+      'notification.read',
     ],
     features: [
       'security_awareness',
@@ -251,9 +303,16 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
       'business_continuity',
       'security_training',
       'incident_reporting',
-      'policy_acknowledgment'
+      'policy_acknowledgment',
     ],
-    restrictions: ['threat.*', 'system.*', 'user.*', '*.create', '*.update', '*.delete']
+    restrictions: [
+      'threat.*',
+      'system.*',
+      'user.*',
+      '*.create',
+      '*.update',
+      '*.delete',
+    ],
   },
   [UserRole.SYSTEM_INTEGRATOR]: {
     id: 'system_integrator',
@@ -262,8 +321,13 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     level: 'specialist',
     dashboardType: 'technical',
     permissions: [
-      'api.*', 'integration.*', 'system.read', 'system.config',
-      'connector.*', 'webhook.*', 'automation.*'
+      'api.*',
+      'integration.*',
+      'system.read',
+      'system.config',
+      'connector.*',
+      'webhook.*',
+      'automation.*',
     ],
     features: [
       'system_integration',
@@ -272,9 +336,9 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
       'automation_setup',
       'data_flow_management',
       'technical_documentation',
-      'integration_testing'
+      'integration_testing',
     ],
-    restrictions: ['user.*', 'threat.delete', 'system.delete']
+    restrictions: ['user.*', 'threat.delete', 'system.delete'],
   },
   [UserRole.API_USER]: {
     id: 'api_user',
@@ -283,8 +347,12 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     level: 'user',
     dashboardType: 'api',
     permissions: [
-      'api.read', 'threat.read', 'alert.read', 'risk.read',
-      'data.read', 'export.read'
+      'api.read',
+      'threat.read',
+      'alert.read',
+      'risk.read',
+      'data.read',
+      'export.read',
     ],
     features: [
       'api_access',
@@ -293,9 +361,9 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
       'integration_monitoring',
       'data_export',
       'programmatic_access',
-      'usage_analytics'
+      'usage_analytics',
     ],
-    restrictions: ['*.create', '*.update', '*.delete', 'system.*', 'user.*']
+    restrictions: ['*.create', '*.update', '*.delete', 'system.*', 'user.*'],
   },
   [UserRole.VIEWER]: {
     id: 'viewer',
@@ -304,8 +372,11 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     level: 'viewer',
     dashboardType: 'viewer',
     permissions: [
-      'dashboard.read', 'threat.read', 'alert.read', 'risk.read',
-      'report.read'
+      'dashboard.read',
+      'threat.read',
+      'alert.read',
+      'risk.read',
+      'report.read',
     ],
     features: [
       'security_visibility',
@@ -313,9 +384,16 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
       'status_monitoring',
       'report_viewing',
       'basic_analytics',
-      'notification_viewing'
+      'notification_viewing',
     ],
-    restrictions: ['*.create', '*.update', '*.delete', 'system.*', 'user.*', 'config.*']
+    restrictions: [
+      '*.create',
+      '*.update',
+      '*.delete',
+      'system.*',
+      'user.*',
+      'config.*',
+    ],
   },
   [UserRole.GUEST]: {
     id: 'guest',
@@ -328,13 +406,20 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
       'basic_visibility',
       'public_dashboards',
       'general_status',
-      'limited_access'
+      'limited_access',
     ],
     restrictions: [
-      '*.create', '*.update', '*.delete', 'system.*', 'user.*', 
-      'config.*', 'threat.*', 'alert.*', 'risk.*'
-    ]
-  }
+      '*.create',
+      '*.update',
+      '*.delete',
+      'system.*',
+      'user.*',
+      'config.*',
+      'threat.*',
+      'alert.*',
+      'risk.*',
+    ],
+  },
 };
 
 export function getRoleConfig(role: UserRole): RoleConfig {
@@ -343,26 +428,26 @@ export function getRoleConfig(role: UserRole): RoleConfig {
 
 export function hasPermission(userRole: UserRole, permission: string): boolean {
   const config = getRoleConfig(userRole);
-  
+
   // Check for wildcard permission
   if (config.permissions.includes('*')) {
     return true;
   }
-  
+
   // Check restrictions first
   for (const restriction of config.restrictions) {
     if (matchesPattern(permission, restriction)) {
       return false;
     }
   }
-  
+
   // Check permissions
   for (const userPermission of config.permissions) {
     if (matchesPattern(permission, userPermission)) {
       return true;
     }
   }
-  
+
   return false;
 }
 
@@ -374,13 +459,13 @@ export function hasFeature(userRole: UserRole, feature: string): boolean {
 function matchesPattern(permission: string, pattern: string): boolean {
   if (pattern === '*') return true;
   if (pattern === permission) return true;
-  
+
   // Handle wildcard patterns like 'user.*'
   if (pattern.endsWith('.*')) {
     const prefix = pattern.slice(0, -2);
     return permission.startsWith(prefix + '.');
   }
-  
+
   return false;
 }
 
@@ -394,19 +479,22 @@ export function getAvailableFeatures(userRole: UserRole): string[] {
 
 export function getRoleHierarchy(): Record<string, number> {
   return {
-    'executive': 100,
-    'manager': 80,
-    'specialist': 60,
-    'analyst': 60,
-    'user': 40,
-    'viewer': 20
+    executive: 100,
+    manager: 80,
+    specialist: 60,
+    analyst: 60,
+    user: 40,
+    viewer: 20,
   };
 }
 
-export function canAccessRole(currentRole: UserRole, targetRole: UserRole): boolean {
+export function canAccessRole(
+  currentRole: UserRole,
+  targetRole: UserRole
+): boolean {
   const hierarchy = getRoleHierarchy();
   const currentLevel = hierarchy[getRoleConfig(currentRole).level] || 0;
   const targetLevel = hierarchy[getRoleConfig(targetRole).level] || 0;
-  
+
   return currentLevel >= targetLevel;
 }

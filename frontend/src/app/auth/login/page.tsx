@@ -39,22 +39,24 @@ export default function LoginPage() {
     }
   };
 
-  const handleOAuthLogin = async (provider: 'google' | 'microsoft' | 'github') => {
+  const handleOAuthLogin = async (
+    provider: 'google' | 'microsoft' | 'github'
+  ) => {
     setLoading(true);
     setError('');
 
     try {
       // Use OAuth utility function to initiate flow
       console.log(`Initiating ${provider} OAuth flow...`);
-      
+
       // In production, this would redirect to the OAuth provider
       // For demo purposes, simulate the redirect and callback
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       // Simulate successful OAuth callback
       console.log(`${provider} OAuth authentication successful`);
       router.push('/cyber');
-      
+
       // Uncomment this line for real OAuth flow:
       // initiateOAuthFlow(provider);
     } catch (err) {
@@ -215,7 +217,7 @@ export default function LoginPage() {
 
             {/* OAuth 2.0 Providers */}
             <div className='space-y-3'>
-              <button 
+              <button
                 onClick={() => handleOAuthLogin('google')}
                 disabled={loading}
                 className='w-full border border-blue-400/50 text-blue-400 py-3 rounded-lg font-bold hover:bg-blue-400/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2'
@@ -223,7 +225,7 @@ export default function LoginPage() {
                 <span>🚀</span>
                 <span>GOOGLE WORKSPACE</span>
               </button>
-              <button 
+              <button
                 onClick={() => handleOAuthLogin('microsoft')}
                 disabled={loading}
                 className='w-full border border-blue-400/50 text-blue-400 py-3 rounded-lg font-bold hover:bg-blue-400/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2'
@@ -231,7 +233,7 @@ export default function LoginPage() {
                 <span>🔷</span>
                 <span>MICROSOFT AZURE AD</span>
               </button>
-              <button 
+              <button
                 onClick={() => handleOAuthLogin('github')}
                 disabled={loading}
                 className='w-full border border-gray-400/50 text-gray-400 py-3 rounded-lg font-bold hover:bg-gray-400/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2'

@@ -240,8 +240,8 @@ export default function AdminDashboard() {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="border-b border-green-400/30 mb-8">
-          <nav className="flex space-x-8">
+        <div className='border-b border-green-400/30 mb-8'>
+          <nav className='flex space-x-8'>
             <button
               onClick={() => setActiveTab('overview')}
               className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
@@ -531,9 +531,7 @@ export default function AdminDashboard() {
         )}
 
         {/* OAuth Providers Tab */}
-        {activeTab === 'oauth' && (
-          <OAuthProviderManager />
-        )}
+        {activeTab === 'oauth' && <OAuthProviderManager />}
       </div>
     </div>
   );

@@ -32,12 +32,13 @@ export const oauthConfig: OAuthConfig = {
       'openid',
       'email',
       'profile',
-      'https://www.googleapis.com/auth/admin.directory.user.readonly'
+      'https://www.googleapis.com/auth/admin.directory.user.readonly',
     ],
-    clientId: process.env['NEXT_PUBLIC_GOOGLE_CLIENT_ID'] || 'demo-google-client-id',
-    redirectUri: process.env['NEXT_PUBLIC_APP_URL'] 
+    clientId:
+      process.env['NEXT_PUBLIC_GOOGLE_CLIENT_ID'] || 'demo-google-client-id',
+    redirectUri: process.env['NEXT_PUBLIC_APP_URL']
       ? `${process.env['NEXT_PUBLIC_APP_URL']}/auth/callback/google`
-      : 'http://localhost:3000/auth/callback/google'
+      : 'http://localhost:3000/auth/callback/google',
   },
   microsoft: {
     id: 'microsoft',
@@ -45,17 +46,13 @@ export const oauthConfig: OAuthConfig = {
     icon: '🔷',
     color: 'blue',
     authUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
-    scopes: [
-      'openid',
-      'email',
-      'profile',
-      'User.Read',
-      'Directory.Read.All'
-    ],
-    clientId: process.env['NEXT_PUBLIC_MICROSOFT_CLIENT_ID'] || 'demo-microsoft-client-id',
-    redirectUri: process.env['NEXT_PUBLIC_APP_URL'] 
+    scopes: ['openid', 'email', 'profile', 'User.Read', 'Directory.Read.All'],
+    clientId:
+      process.env['NEXT_PUBLIC_MICROSOFT_CLIENT_ID'] ||
+      'demo-microsoft-client-id',
+    redirectUri: process.env['NEXT_PUBLIC_APP_URL']
       ? `${process.env['NEXT_PUBLIC_APP_URL']}/auth/callback/microsoft`
-      : 'http://localhost:3000/auth/callback/microsoft'
+      : 'http://localhost:3000/auth/callback/microsoft',
   },
   github: {
     id: 'github',
@@ -63,16 +60,13 @@ export const oauthConfig: OAuthConfig = {
     icon: '🐙',
     color: 'gray',
     authUrl: 'https://github.com/login/oauth/authorize',
-    scopes: [
-      'user:email',
-      'read:org',
-      'read:user'
-    ],
-    clientId: process.env['NEXT_PUBLIC_GITHUB_CLIENT_ID'] || 'demo-github-client-id',
-    redirectUri: process.env['NEXT_PUBLIC_APP_URL'] 
+    scopes: ['user:email', 'read:org', 'read:user'],
+    clientId:
+      process.env['NEXT_PUBLIC_GITHUB_CLIENT_ID'] || 'demo-github-client-id',
+    redirectUri: process.env['NEXT_PUBLIC_APP_URL']
       ? `${process.env['NEXT_PUBLIC_APP_URL']}/auth/callback/github`
-      : 'http://localhost:3000/auth/callback/github'
-  }
+      : 'http://localhost:3000/auth/callback/github',
+  },
 };
 
 /**
@@ -80,7 +74,7 @@ export const oauthConfig: OAuthConfig = {
  */
 export function generateAuthUrl(providerId: keyof OAuthConfig): string {
   const provider = oauthConfig[providerId];
-  
+
   const params = new URLSearchParams({
     client_id: provider.clientId,
     redirect_uri: provider.redirectUri,
@@ -89,13 +83,13 @@ export function generateAuthUrl(providerId: keyof OAuthConfig): string {
     state: generateState(providerId),
     // Provider-specific parameters
     ...(providerId === 'microsoft' && { response_mode: 'query' }),
-    ...(providerId === 'google' && { 
+    ...(providerId === 'google' && {
       access_type: 'offline',
-      include_granted_scopes: 'true'
+      include_granted_scopes: 'true',
     }),
-    ...(providerId === 'github' && { 
-      allow_signup: 'false' // Enterprise only
-    })
+    ...(providerId === 'github' && {
+      allow_signup: 'false', // Enterprise only
+    }),
   });
 
   return `${provider.authUrl}?${params.toString()}`;
@@ -108,12 +102,12 @@ export function generateState(providerId: string): string {
   const timestamp = Date.now().toString();
   const random = Math.random().toString(36).substring(2);
   const state = btoa(`${providerId}:${timestamp}:${random}`);
-  
+
   // Store state in sessionStorage for verification
   if (typeof window !== 'undefined') {
     sessionStorage.setItem('oauth_state', state);
   }
-  
+
   return state;
 }
 
@@ -122,10 +116,10 @@ export function generateState(providerId: string): string {
  */
 export function verifyState(state: string): boolean {
   if (typeof window === 'undefined') return false;
-  
+
   const storedState = sessionStorage.getItem('oauth_state');
   sessionStorage.removeItem('oauth_state');
-  
+
   return storedState === state;
 }
 
@@ -142,7 +136,7 @@ export async function exchangeCodeForToken(
   expires_in: number;
 }> {
   const provider = oauthConfig[providerId];
-  
+
   // Token endpoints for each provider (for backend implementation)
   // const tokenEndpoints = {
   //   google: 'https://oauth2.googleapis.com/token',
@@ -159,8 +153,8 @@ export async function exchangeCodeForToken(
       provider: providerId,
       code,
       redirect_uri: provider.redirectUri,
-      client_id: provider.clientId
-    })
+      client_id: provider.clientId,
+    }),
   });
 
   if (!response.ok) {
@@ -197,8 +191,8 @@ export async function getUserProfile(
     },
     body: JSON.stringify({
       provider: providerId,
-      access_token: accessToken
-    })
+      access_token: accessToken,
+    }),
   });
 
   if (!response.ok) {
@@ -213,7 +207,7 @@ export async function getUserProfile(
  */
 export function initiateOAuthFlow(providerId: keyof OAuthConfig): void {
   const authUrl = generateAuthUrl(providerId);
-  
+
   // Redirect to OAuth provider
   window.location.href = authUrl;
 }
@@ -238,10 +232,10 @@ export async function handleOAuthCallback(
 
     // Exchange code for tokens
     const tokens = await exchangeCodeForToken(providerId, code);
-    
+
     // Get user profile
     const profile = await getUserProfile(providerId, tokens.access_token);
-    
+
     // Create user session (this would typically involve your backend)
     const sessionResponse = await fetch('/api/auth/session', {
       method: 'POST',
@@ -251,8 +245,8 @@ export async function handleOAuthCallback(
       body: JSON.stringify({
         provider: providerId,
         profile,
-        tokens
-      })
+        tokens,
+      }),
     });
 
     if (!sessionResponse.ok) {
@@ -263,14 +257,13 @@ export async function handleOAuthCallback(
 
     return {
       success: true,
-      user
+      user,
     };
-
   } catch (error) {
     console.error('OAuth callback error:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Authentication failed'
+      error: error instanceof Error ? error.message : 'Authentication failed',
     };
   }
 }
@@ -278,7 +271,9 @@ export async function handleOAuthCallback(
 /**
  * Logout from OAuth provider
  */
-export async function logoutOAuthProvider(providerId: keyof OAuthConfig): Promise<void> {
+export async function logoutOAuthProvider(
+  providerId: keyof OAuthConfig
+): Promise<void> {
   // Logout URLs for each provider (for backend implementation)
   // const logoutUrls = {
   //   google: 'https://accounts.google.com/logout',
@@ -292,7 +287,7 @@ export async function logoutOAuthProvider(providerId: keyof OAuthConfig): Promis
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ provider: providerId })
+    body: JSON.stringify({ provider: providerId }),
   });
 
   // Optionally redirect to provider logout

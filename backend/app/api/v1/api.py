@@ -24,7 +24,7 @@ from app.api.v1.endpoints import (
     threats,
     users,
 )
-from app.api.v1 import billing, siem, soar, supply_chain, enterprise_api
+from app.api.v1 import billing, siem, soar, supply_chain, enterprise_api, threat_hunting
 
 api_router = APIRouter()
 
@@ -122,4 +122,10 @@ api_router.include_router(
 api_router.include_router(
     enterprise_api.router,
     tags=["Enterprise API Management"],
+)
+
+# Advanced Threat Hunting Interface
+api_router.include_router(
+    threat_hunting.router,
+    tags=["Threat Hunting"],
 )

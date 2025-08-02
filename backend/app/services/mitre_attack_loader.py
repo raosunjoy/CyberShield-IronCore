@@ -13,9 +13,21 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 
-from threat_intelligence import MitreAttackTechnique
-
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class MitreAttackTechnique:
+    """MITRE ATT&CK technique information"""
+    
+    technique_id: str
+    technique_name: str
+    tactic: str
+    description: str
+    platforms: List[str]
+    data_sources: List[str]
+    detection: str
+    mitigation: str
 
 
 class MitreAttackLoader:

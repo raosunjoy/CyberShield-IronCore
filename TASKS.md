@@ -17,6 +17,8 @@ These are **blocking tasks** that prevent the platform from functioning as a rea
 **Priority**: P0 - Platform cannot function without this  
 **Timeline**: 2 weeks  
 
+**🚨 TDD REQUIREMENT**: Write failing tests FIRST for every function before implementation. 100% test coverage mandatory.
+
 **Sub-tasks**:
 - [ ] **VirusTotal API Integration**
   ```python
@@ -67,6 +69,8 @@ These are **blocking tasks** that prevent the platform from functioning as a rea
 **Status**: 0% Complete (Core value proposition missing)  
 **Priority**: P0 - This is why enterprises buy the platform  
 **Timeline**: 2-3 weeks  
+
+**🚨 TDD REQUIREMENT**: Write failing tests FIRST for every function before implementation. 100% test coverage mandatory.
 
 **Sub-tasks**:
 - [ ] **AWS Security Group Automation**
@@ -128,6 +132,8 @@ These are **blocking tasks** that prevent the platform from functioning as a rea
 **Priority**: P0 - Required for regulated industries  
 **Timeline**: 2 weeks  
 
+**🚨 TDD REQUIREMENT**: Write failing tests FIRST for every function before implementation. 100% test coverage mandatory.
+
 **Sub-tasks**:
 - [ ] **GDPR Compliance Reports**
   ```python
@@ -182,6 +188,8 @@ These are **blocking tasks** that prevent the platform from functioning as a rea
 **Status**: 0% Complete (SaaS blocker)  
 **Priority**: P0 - Cannot serve multiple enterprise clients  
 **Timeline**: 2-3 weeks  
+
+**🚨 TDD REQUIREMENT**: Write failing tests FIRST for every function before implementation. 100% test coverage mandatory.
 
 **Sub-tasks**:
 - [ ] **Tenant Data Isolation**
@@ -241,6 +249,8 @@ These are **blocking tasks** that prevent the platform from functioning as a rea
 **Status**: 0% Complete (Fortune 500 adoption blocker)  
 **Priority**: P0 - Required for enterprise sales  
 **Timeline**: 1-2 weeks  
+
+**🚨 TDD REQUIREMENT**: Write failing tests FIRST for every function before implementation. 100% test coverage mandatory.
 
 **Sub-tasks**:
 - [ ] **SAML 2.0 Implementation**

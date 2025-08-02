@@ -24,7 +24,7 @@ from app.api.v1.endpoints import (
     threats,
     users,
 )
-from app.api.v1 import billing, siem
+from app.api.v1 import billing, siem, soar, supply_chain, enterprise_api
 
 api_router = APIRouter()
 
@@ -102,4 +102,24 @@ api_router.include_router(
     siem.router,
     prefix="/siem",
     tags=["SIEM Integration"],
+)
+
+# SOAR Integration
+api_router.include_router(
+    soar.router,
+    prefix="/soar",
+    tags=["SOAR Integration"],
+)
+
+# Supply Chain Security Auditor
+api_router.include_router(
+    supply_chain.router,
+    prefix="/supply-chain",
+    tags=["Supply Chain Security"],
+)
+
+# Enterprise API Management
+api_router.include_router(
+    enterprise_api.router,
+    tags=["Enterprise API Management"],
 )

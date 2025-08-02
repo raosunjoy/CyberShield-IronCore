@@ -520,5 +520,416 @@ class TestAPIMiddleware:
         middleware.api_management_service.process_api_request.assert_called_once()
 
 
+class TestRedisRateLimiterIntegration:
+    """TDD: Test Redis-backed rate limiter integration."""
+    
+    @pytest.mark.asyncio
+    async def test_redis_rate_limiter_with_multiple_time_windows(self):
+        """RED: Should handle minute, hour, and daily rate limits correctly."""
+        from app.services.enterprise_api_management import RedisRateLimiter, TierLimits
+        
+        # Mock Redis client
+        mock_redis = AsyncMock()
+        mock_redis.pipeline.return_value.execute.return_value = [
+            # First execute: get counts
+            5, 100, 1000, 2,  # minute, hour, day, burst counts
+            # Second execute: increment and set expiry (8 operations)
+            None, None, None, None, None, None, None, None
+        ]
+        
+        tenant_id = uuid4()
+        tier_limits = TierLimits(
+            requests_per_minute=10,
+            requests_per_hour=500,
+            requests_per_day=10000,
+            burst_limit=5,
+            tier_name="professional"
+        )
+        
+        rate_limiter = RedisRateLimiter(tenant_id, tier_limits, mock_redis)
+        
+        result = await rate_limiter.is_request_allowed("192.168.1.1", "/api/v1/threats")
+        
+        assert result["allowed"] is True
+        assert result["remaining_minute"] == 4  # 10 - 5 - 1
+        assert result["remaining_hour"] == 399  # 500 - 100 - 1
+        assert result["tier"] == "professional"
+    
+    @pytest.mark.asyncio
+    async def test_redis_rate_limiter_status_check(self):
+        """RED: Should provide detailed rate limit status without incrementing."""
+        from app.services.enterprise_api_management import RedisRateLimiter, TierLimits
+        
+        mock_redis = AsyncMock()
+        mock_redis.pipeline.return_value.execute.return_value = [25, 1250, 25000]  # Current counts
+        
+        tenant_id = uuid4()
+        tier_limits = TierLimits(
+            requests_per_minute=100,
+            requests_per_hour=5000,
+            requests_per_day=100000,
+            burst_limit=20,
+            tier_name="enterprise"
+        )
+        
+        rate_limiter = RedisRateLimiter(tenant_id, tier_limits, mock_redis)
+        
+        status = await rate_limiter.get_rate_limit_status("192.168.1.1", "/api/v1/threats")
+        
+        assert status["limits"]["requests_per_minute"] == 100
+        assert status["current"]["minute"] == 25
+        assert status["remaining"]["minute"] == 75
+        assert status["tier"] == "enterprise"
+
+
+class TestSLAMetricsAndAnalytics:
+    """TDD: Test SLA monitoring and advanced analytics."""
+    
+    @pytest.mark.asyncio
+    async def test_sla_metrics_calculation(self):
+        """RED: Should calculate SLA metrics from Redis data."""
+        from app.services.enterprise_api_management import APIUsageAnalyticsService, SLAMetrics
+        
+        mock_redis = AsyncMock()
+        # Mock Redis responses for metrics calculation
+        mock_redis.get.side_effect = [
+            "1000",  # Total requests
+            "50",    # Total errors
+            None,    # No data for some minutes
+            "500"    # More requests
+        ]
+        mock_redis.lrange.return_value = ["45", "78", "120", "95", "200"]  # Response times
+        
+        analytics_service = APIUsageAnalyticsService(mock_redis)
+        tenant_id = uuid4()
+        
+        metrics = await analytics_service.get_sla_metrics(tenant_id, hours=24)
+        
+        assert isinstance(metrics, SLAMetrics)
+        assert metrics.uptime_percentage <= 100.0
+        assert metrics.error_rate >= 0.0
+        assert metrics.response_time_p95 > 0
+        assert metrics.response_time_p99 > 0
+    
+    @pytest.mark.asyncio
+    async def test_usage_summary_with_endpoint_breakdown(self):
+        """RED: Should provide detailed endpoint-level usage statistics."""
+        from app.services.enterprise_api_management import (
+            APIUsageAnalyticsService,
+            APIUsageEvent,
+            HTTPMethod
+        )
+        
+        analytics_service = APIUsageAnalyticsService()
+        tenant_id = uuid4()
+        
+        # Create events for different endpoints
+        endpoints = ["/api/v1/threats", "/api/v1/incidents", "/api/v1/analytics"]
+        
+        for i, endpoint in enumerate(endpoints):
+            for j in range(10 + i * 5):  # Different usage patterns
+                event = APIUsageEvent(
+                    event_id=uuid4(),
+                    tenant_id=tenant_id,
+                    api_key_id=uuid4(),
+                    timestamp=datetime.utcnow(),
+                    endpoint=endpoint,
+                    method=HTTPMethod.GET,
+                    status_code=200 if j < 8 else 500,  # Some errors
+                    response_time_ms=50 + (i * 20) + j,
+                    request_size_bytes=1024,
+                    response_size_bytes=2048,
+                    user_agent="Test",
+                    source_ip="127.0.0.1",
+                    api_version="v1"
+                )
+                await analytics_service.track_api_usage(event)
+        
+        # Generate summary
+        start_date = datetime.utcnow() - timedelta(hours=1)
+        end_date = datetime.utcnow() + timedelta(hours=1)
+        
+        summary = await analytics_service.generate_usage_summary(tenant_id, start_date, end_date)
+        
+        assert summary.total_requests == 45  # 10 + 15 + 20
+        assert len(summary.top_endpoints) == 3
+        assert summary.error_rate > 0  # We added some 500 errors
+        
+        # Check endpoint breakdown
+        top_endpoint = summary.top_endpoints[0]
+        assert "count" in top_endpoint
+        assert "average_response_time" in top_endpoint
+        assert "error_rate" in top_endpoint
+
+
+class TestAPIKeyManagementAdvanced:
+    """TDD: Test advanced API key management features."""
+    
+    @pytest.mark.asyncio
+    async def test_api_key_creation_with_redis_persistence(self):
+        """RED: Should create API key and persist to Redis."""
+        from app.services.enterprise_api_management import APIKeyManager, APIKeyScope
+        
+        mock_redis = AsyncMock()
+        key_manager = APIKeyManager(mock_redis)
+        
+        tenant_id = uuid4()
+        scopes = [APIKeyScope.READ_THREATS, APIKeyScope.WRITE_INCIDENTS]
+        
+        result = await key_manager.create_api_key(
+            tenant_id=tenant_id,
+            key_name="Production Key",
+            scopes=scopes,
+            expires_in_days=180
+        )
+        
+        assert "api_key" in result
+        assert result["api_key"].startswith("cs_")
+        assert len(result["scopes"]) == 2
+        
+        # Verify Redis calls were made
+        mock_redis.set.assert_called()
+        mock_redis.sadd.assert_called()
+        mock_redis.expire.assert_called()
+    
+    @pytest.mark.asyncio 
+    async def test_api_key_revocation(self):
+        """RED: Should revoke API key and update Redis."""
+        from app.services.enterprise_api_management import APIKeyManager, APIKeyScope
+        
+        mock_redis = AsyncMock()
+        key_manager = APIKeyManager(mock_redis)
+        
+        # Create a key first
+        tenant_id = uuid4()
+        result = await key_manager.create_api_key(
+            tenant_id=tenant_id,
+            key_name="Test Key",
+            scopes=[APIKeyScope.READ_THREATS],
+            expires_in_days=30
+        )
+        
+        # Get the hash for revocation
+        import hashlib
+        key_hash = hashlib.sha256(result["api_key"].encode()).hexdigest()
+        
+        # Revoke the key
+        success = await key_manager.revoke_api_key(key_hash)
+        
+        assert success is True
+        
+        # Verify the key is marked as inactive
+        api_key_obj = key_manager._api_keys.get(key_hash)
+        assert api_key_obj is not None
+        assert api_key_obj.is_active is False
+    
+    @pytest.mark.asyncio
+    async def test_list_tenant_keys_with_filtering(self):
+        """RED: Should list API keys for tenant with proper filtering."""
+        from app.services.enterprise_api_management import APIKeyManager
+        
+        mock_redis = AsyncMock()
+        
+        # Mock Redis to return tenant key hashes
+        mock_redis.smembers.return_value = {"hash1", "hash2", "hash3"}
+        
+        # Mock individual key data
+        mock_key_data = {
+            "key_id": str(uuid4()),
+            "tenant_id": str(uuid4()),
+            "key_name": "Test Key",
+            "scopes": ["read:threats"],
+            "created_date": datetime.utcnow().isoformat(),
+            "expires_date": (datetime.utcnow() + timedelta(days=365)).isoformat(),
+            "is_active": True,
+            "last_used": None,
+            "usage_count": 0
+        }
+        mock_redis.get.return_value = json.dumps(mock_key_data)
+        
+        key_manager = APIKeyManager(mock_redis)
+        tenant_id = uuid4()
+        
+        keys = await key_manager.list_tenant_keys(tenant_id)
+        
+        # Should handle Redis responses gracefully
+        assert isinstance(keys, list)
+        mock_redis.smembers.assert_called_once()
+
+
+class TestTenantTierManagement:
+    """TDD: Test tenant tier configuration and management."""
+    
+    @pytest.mark.asyncio
+    async def test_tenant_tier_configurations(self):
+        """RED: Should provide different tier configurations."""
+        from app.services.enterprise_api_management import EnterpriseAPIManagementService
+        
+        service = EnterpriseAPIManagementService()
+        
+        # Verify tier configurations exist
+        assert "starter" in service.tier_configs
+        assert "professional" in service.tier_configs
+        assert "enterprise" in service.tier_configs
+        assert "enterprise_plus" in service.tier_configs
+        
+        # Verify tier progression
+        starter = service.tier_configs["starter"]
+        enterprise = service.tier_configs["enterprise"]
+        
+        assert starter.requests_per_minute < enterprise.requests_per_minute
+        assert starter.max_api_keys < enterprise.max_api_keys
+        assert len(starter.features) < len(enterprise.features)
+    
+    @pytest.mark.asyncio
+    async def test_update_tenant_tier_and_rate_limiter_refresh(self):
+        """RED: Should update tenant tier and refresh rate limiter."""
+        from app.services.enterprise_api_management import EnterpriseAPIManagementService
+        
+        mock_redis = AsyncMock()
+        service = EnterpriseAPIManagementService(mock_redis)
+        
+        tenant_id = uuid4()
+        
+        # Initially get rate limiter (will be cached)
+        rate_limiter = await service.get_rate_limiter_for_tenant(tenant_id)
+        assert tenant_id in service.rate_limiters
+        
+        # Update tier
+        success = await service.update_tenant_tier(tenant_id, "enterprise")
+        
+        assert success is True
+        
+        # Verify rate limiter cache was cleared
+        assert tenant_id not in service.rate_limiters
+        
+        # Verify Redis update call
+        mock_redis.set.assert_called()
+    
+    @pytest.mark.asyncio
+    async def test_get_tenant_api_statistics_comprehensive(self):
+        """RED: Should provide comprehensive tenant API statistics."""
+        from app.services.enterprise_api_management import EnterpriseAPIManagementService
+        
+        mock_redis = AsyncMock()
+        mock_redis.get.return_value = "professional"  # Mock tier
+        
+        service = EnterpriseAPIManagementService(mock_redis)
+        
+        # Mock dependencies
+        service.api_key_manager.list_tenant_keys = AsyncMock(return_value=[
+            {"is_active": True}, {"is_active": True}, {"is_active": False}
+        ])
+        
+        tenant_id = uuid4()
+        
+        stats = await service.get_tenant_api_statistics(tenant_id)
+        
+        assert "tenant_id" in stats
+        assert "tier" in stats
+        assert "tier_limits" in stats
+        assert "sla_metrics" in stats
+        assert "api_keys" in stats
+        assert "features" in stats
+        
+        # Verify API key counts
+        assert stats["api_keys"]["total"] == 3
+        assert stats["api_keys"]["active"] == 2
+
+
+class TestPerformanceAndStressTests:
+    """TDD: Test performance under load."""
+    
+    @pytest.mark.asyncio
+    async def test_concurrent_rate_limit_checks(self):
+        """RED: Should handle concurrent rate limit checks efficiently."""
+        from app.services.enterprise_api_management import RedisRateLimiter, TierLimits
+        
+        mock_redis = AsyncMock()
+        mock_redis.pipeline.return_value.execute.return_value = [0, 0, 0, 0] + [None] * 8
+        
+        tenant_id = uuid4()
+        tier_limits = TierLimits(
+            requests_per_minute=1000,
+            requests_per_hour=50000,
+            requests_per_day=1000000,
+            burst_limit=100,
+            tier_name="enterprise"
+        )
+        
+        rate_limiter = RedisRateLimiter(tenant_id, tier_limits, mock_redis)
+        
+        # Test concurrent requests
+        tasks = []
+        for i in range(50):
+            tasks.append(rate_limiter.is_request_allowed(f"192.168.1.{i}", "/api/v1/test"))
+        
+        start_time = time.time()
+        results = await asyncio.gather(*tasks)
+        end_time = time.time()
+        
+        # All requests should succeed (mocked to return low counts)
+        assert all(result["allowed"] for result in results)
+        
+        # Should complete in reasonable time
+        assert end_time - start_time < 2.0  # Less than 2 seconds for 50 requests
+    
+    @pytest.mark.asyncio
+    async def test_large_usage_summary_generation(self):
+        """RED: Should efficiently generate summaries for large datasets."""
+        from app.services.enterprise_api_management import (
+            APIUsageAnalyticsService,
+            APIUsageEvent,
+            HTTPMethod
+        )
+        
+        analytics_service = APIUsageAnalyticsService()
+        tenant_id = uuid4()
+        
+        # Generate large dataset
+        event_count = 1000
+        start_time = time.time()
+        
+        for i in range(event_count):
+            event = APIUsageEvent(
+                event_id=uuid4(),
+                tenant_id=tenant_id,
+                api_key_id=uuid4(),
+                timestamp=datetime.utcnow(),
+                endpoint=f"/api/v1/endpoint{i % 20}",  # 20 different endpoints
+                method=HTTPMethod.GET,
+                status_code=200,
+                response_time_ms=50 + (i % 100),
+                request_size_bytes=1024,
+                response_size_bytes=2048,
+                user_agent="Load Test",
+                source_ip="127.0.0.1",
+                api_version="v1"
+            )
+            await analytics_service.track_api_usage(event)
+        
+        tracking_time = time.time() - start_time
+        
+        # Generate summary
+        summary_start = time.time()
+        start_date = datetime.utcnow() - timedelta(hours=1)
+        end_date = datetime.utcnow() + timedelta(hours=1)
+        
+        summary = await analytics_service.generate_usage_summary(tenant_id, start_date, end_date)
+        summary_time = time.time() - summary_start
+        
+        # Verify results
+        assert summary.total_requests == event_count
+        assert len(summary.top_endpoints) <= 10  # Top 10 endpoints
+        
+        # Performance assertions
+        assert tracking_time < 5.0  # Tracking should be fast
+        assert summary_time < 1.0   # Summary generation should be efficient
+
+
+import time
+import json
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
